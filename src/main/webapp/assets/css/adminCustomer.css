@@ -1,0 +1,27 @@
+#detail-container {
+    display: none;
+}
+
+#detail-container.active {
+    display: table-row;
+    background-color: #FFFFFF;
+}
+
+#detail-container.active table {
+    width: 90%;
+    margin: auto;
+    box-shadow:  0 0 4px 2px rgb(179 179 179 / 30%);
+}
+
+#detail-table {
+    border-radius: 10px;
+    background-color: var(--blue-super-light);
+}
+
+#detail-table * {
+    background-color: var(--blue-super-light);
+}
+
+#detail-table td {
+    padding: 4px 10px;
+}

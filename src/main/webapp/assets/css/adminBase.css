@@ -1,0 +1,111 @@
+.logo {
+    display: block;
+}
+
+.logo img {
+    width: 100%;
+}
+
+#main {
+    margin-left: auto;
+}
+
+#header ul {
+    display: block;
+}
+
+.search-bar {
+    border: 1px solid var(--blue-color);
+    /*outline-offset: 3px;*/
+}
+
+.search-bar:focus-within {
+    outline-offset: unset;
+    outline: 3px solid var(--secondary-color); /* Tạo viền khi focus */
+}
+
+.info-container {
+    margin-top: 40px;
+}
+
+.info-table td {
+    padding: 4px;
+}
+
+.info-input {
+    width: 100%;
+    font-size: 15px;
+    border: 1px solid var(--secondary-color);;
+    padding: 2px 4px;
+    border-radius: 4px;
+
+}
+
+.info-input:focus-visible {
+    outline-color: var(--secondary-color);
+}
+
+input[readonly] {
+    border: none;
+}
+
+.btn-fourth {
+    text-align: center;
+    font-size: 15px;
+    color: var(--text-bold-color);
+    border: 1px solid var(--text-bold-color);
+}
+
+.btn-fourth:hover {
+    opacity: 0.3;
+    border: 1px solid var(--text-bold-color);
+    /*box-shadow:  0 0 4px 2px rgb(179 179 179 / 30%);*/
+}
+
+
+/* Tô màu nền cho các hàng chẵn và lẻ */
+tr:nth-child(even),
+tr:nth-child(even) input,
+tr:nth-child(even) select {
+    background-color: #f2f2f2; /* Màu nền cho hàng chẵn */
+}
+
+
+tr:nth-child(odd),
+tr:nth-child(odd) input,
+tr:nth-child(odd) select {
+    background-color: #ffffff; /* Màu nền cho hàng lẻ */
+}
+
+.not-confirm * {
+    background-color: rgb(255, 240, 219) !important;
+}
+
+.locked * {
+    background-color: rgb(255, 204, 204) !important;
+}
+
+.add-form {
+    display: none;
+}
+
+.add-form.active {
+    display: block;
+}
+
+#update-info-modal .modall-content {
+    overflow: auto;
+    /*max-width: 800px;*/
+    max-height: 90%;
+}
+
+
+/*header*/
+.dropdown-menu {
+    display: none !important;
+}
+
+.dropdown-menu.active {
+    display: block !important;
+}
+
