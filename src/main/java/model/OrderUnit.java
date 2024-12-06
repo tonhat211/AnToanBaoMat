@@ -9,10 +9,16 @@ public class OrderUnit {
     public ArrayList<OrderDetail> details;
     public OrderUnit() {
         this.details = new ArrayList<>();
-    };
+    }
+
     public OrderUnit(Order order) {
         this.order = order;
         this.details = new ArrayList<>();
+    }
+
+    public OrderUnit(Order order,ArrayList<OrderDetail> details) {
+        this.order = order;
+        this.details = details;
     }
 
     @Override
@@ -41,9 +47,19 @@ public class OrderUnit {
         return time.toLocalDate() + "</br>" + time.toLocalTime();
     }
 
+    public String getDateSetInLine() {
+        LocalDateTime time = order.getDateSet();
+        return time.toLocalDate() + " " + time.toLocalTime();
+    }
+
     public String getUpdateTime() {
         LocalDateTime time = order.getupdateTime();
         return time.toLocalDate() + "</br>" + time.toLocalTime();
+    }
+
+    public String getUpdateTimeInLine() {
+        LocalDateTime time = order.getupdateTime();
+        return time.toLocalDate() + " " + time.toLocalTime();
     }
 
     public int getOrderID() {

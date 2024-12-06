@@ -83,7 +83,15 @@ public class AdminMenuController extends HttpServlet {
             }
             case "ADMINPRODUCT": {
                 System.out.println("menu admin product");
-                ArrayList<ProductUnit> productUnits = ProductUnitDAO.getInstance().selectByCategoryForAdmin(Constant.SMARTPHONE_CATEGORY,0,Constant.NUM_OF_ITEMS_A_PAGE);
+
+                ArrayList<ProductUnit> productUnits = ProductUnitDAO.getInstance().selectByCategoryForAdmin(Constant.ALL,0,Constant.NUM_OF_ITEMS_A_PAGE);
+                int numOfProducts = ProductUnitDAO.getInstance().selectCountByCategory(Constant.ALL);
+                Integer numOfPages = numOfProducts / Constant.NUM_OF_ITEMS_A_PAGE;
+                if(numOfProducts % Constant.NUM_OF_ITEMS_A_PAGE != 0) numOfPages++;
+
+
+                req.setAttribute("numOfPages", numOfPages);
+
                 req.setAttribute("productUnits", productUnits);
                 session.setAttribute("adminMenu", "product");
                 String message = req.getParameter("message");
@@ -94,6 +102,7 @@ public class AdminMenuController extends HttpServlet {
                     else if(message.contains("addSuccess")) message = "Thêm sản phẩm thành công";
                     req.setAttribute("message", message);
                 }
+
                 RequestDispatcher dispatcher = getServletContext().getRequestDispatcher("/adminProduct.jsp");
                 dispatcher.forward(req, resp);
                 break;

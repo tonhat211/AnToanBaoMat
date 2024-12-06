@@ -92,7 +92,7 @@
                 <p><%=userLogging.getName()%></p>
                 <ul class="sub-menu">
                     <li>
-                        <a href="" class="li-order">Đơn hàng</a>
+                        <a href="order" class="li-order">Đơn hàng</a>
                     </li>
                     <li>
                         <a href="profile?action=addressBook" class="li-address" onclick="manageAddress(event);">Sổ địa chỉ</a>
