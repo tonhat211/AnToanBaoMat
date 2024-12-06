@@ -22,4 +22,8 @@ public class OrderDetail {
                 ", quantity=" + quantity +
                 '}';
     }
+
+    public String getCurrentPrice() {
+        return Constant.formatPrice(this.currentPrice);
+    }
 }

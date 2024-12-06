@@ -59,10 +59,6 @@ public class OrderDAO implements IDAO<Order> {
         return null;
     }
 
-    @Override
-    public Order selectById(int id) {
-        return null;
-    }
 
     public int insertOrderDetail(int orderID,ArrayList<CartUnit> carts) {
         int re=0;
@@ -471,11 +467,120 @@ public class OrderDAO implements IDAO<Order> {
             throw new RuntimeException(e);
         }
     }
-    public static void main(String[] args) {
-        ArrayList<OrderUnit> orderunits =  OrderDAO.getInstance().selectOrderUnitByID(-1,"5",0,20);
-//        System.out.println("count: " + OrderDAO.getInstance().selectCountOrderUnitBy(-1));
-        for(OrderUnit o : orderunits) {
-            System.out.println(o.getOrderID() + " : " + o.getUpdateTime() + " : " + o.getDateSet());
+
+    public ArrayList<OrderUnit> selectOrderUnitOfAndBy(int id, int status) {
+        ArrayList<OrderUnit> res = new ArrayList<>();
+        Map<Order,OrderUnit> maps = new LinkedHashMap<>();
+        ArrayList<Order> orders = selectOrderOfAndBy(id,status);
+        ArrayList<OrderDetail> details = selectDetailByOrders(orders);
+
+        for (Order o : orders) {
+            maps.put(o, new OrderUnit(o));
         }
+        for(OrderDetail d : details) {
+            int orderID = d.orderId;
+            maps.get(new Order(orderID)).details.add(d);
+        }
+        for (OrderUnit orderUnit : maps.values()) {
+            res.add(orderUnit);
+        }
+
+        return res;
+
+    }
+
+    public ArrayList<Order> selectOrderOfAndBy(int userIDin, int statusIn) {
+        String statusCondition = " and status = " + statusIn;
+        if(statusIn==-1) {
+            statusCondition="";
+        }
+        ArrayList<Order> res = new ArrayList<>();
+        try {
+            Connection conn = JDBCUtil.getConnection();
+            String sql = "select * from orders\n" +
+                    " where userID = ? " + statusCondition +
+                    "\n   order by updateTime desc; \n";
+            PreparedStatement pst = conn.prepareStatement(sql);
+            pst.setInt(1, userIDin);
+            ResultSet rs = pst.executeQuery();
+            while(rs.next()) {
+                int id = rs.getInt("id");
+                double money = rs.getDouble("money");
+                int userID = rs.getInt("userID");
+                String address = rs.getString("address");
+                LocalDateTime dateSet = rs.getObject("dateSet",LocalDateTime.class);
+                LocalDateTime updateTime = rs.getObject("updateTime",LocalDateTime.class);
+                int status = rs.getInt("status");
+                res.add(new Order(id,money,userID,address,dateSet,updateTime,status));
+            }
+            JDBCUtil.closeConnection(conn);
+            return res;
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public OrderUnit selectByID(int id) {
+        ArrayList<Order> orders= new ArrayList<>();
+        Order order = OrderDAO.getInstance().selectById(id);
+        orders.add(order);
+        ArrayList<OrderDetail> details = selectDetailByOrders(orders);
+
+        OrderUnit re = new OrderUnit(order,details);
+
+        return re;
+
+    }
+
+    public Order selectById(int idin) {
+        Order re = null;
+        try {
+            Connection conn = JDBCUtil.getConnection();
+            String sql = "select * from orders\n" +
+                    " where id = ?; \n";
+            PreparedStatement pst = conn.prepareStatement(sql);
+            pst.setInt(1, idin);
+            ResultSet rs = pst.executeQuery();
+            while(rs.next()) {
+                int id = rs.getInt("id");
+                double money = rs.getDouble("money");
+                int userID = rs.getInt("userID");
+                String address = rs.getString("address");
+                LocalDateTime dateSet = rs.getObject("dateSet",LocalDateTime.class);
+                LocalDateTime updateTime = rs.getObject("updateTime",LocalDateTime.class);
+                int status = rs.getInt("status");
+                re=new Order(id,money,userID,address,dateSet,updateTime,status);
+            }
+            JDBCUtil.closeConnection(conn);
+            return re;
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    public double selectTotalMoneyOfUser(int id) {
+        double re =0;
+        try {
+            Connection conn = JDBCUtil.getConnection();
+            String sql = "select sum(money) as total from orders where userID = ?";
+            PreparedStatement pst = conn.prepareStatement(sql);
+            pst.setInt(1, id);
+            ResultSet rs = pst.executeQuery();
+            while(rs.next()) {
+                re = rs.getDouble("total");
+            }
+            JDBCUtil.closeConnection(conn);
+            return re;
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    public static void main(String[] args) {
+        OrderUnit orderUnit = OrderDAO.getInstance().selectByID(30);
+        System.out.println(orderUnit.order.getAddress());
     }
 }

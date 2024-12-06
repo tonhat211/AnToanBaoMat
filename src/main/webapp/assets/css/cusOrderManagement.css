@@ -172,3 +172,30 @@
     background-color: white;
     padding: 5px;
 }
+
+.status-1 {
+    color: #ffc021 !important;
+}
+
+.status-2 {
+    color: #4154f1 !important;
+}
+
+.status-3 {
+    color: #47d864 !important;
+}
+
+.status-10 {
+    color: #ff623d !important;
+}
+
+.status-0,
+.status--99 {
+    color: black !important;
+}
+
+.btn-status-10 {
+    color: #fff;
+    background-color: #ff623d;
+
+}

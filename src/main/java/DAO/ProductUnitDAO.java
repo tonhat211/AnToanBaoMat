@@ -1225,45 +1225,62 @@ public String renderUpdateForm(ProductUnit p,ArrayList<Brand> brands, ArrayList<
 
     }
 
+    public ArrayList<ProductUnit> selectByDetailIds(ArrayList<Integer> ids) {
+        ArrayList<ProductUnit> res = new ArrayList<>();
+        String idsCondition="(";
+        for(Integer i : ids) {
+            idsCondition+=i+",";
+        }
+        idsCondition=idsCondition.substring(0, idsCondition.length()-1);
+        idsCondition+=")";
+
+        try {
+            Connection conn = JDBCUtil.getConnection();
+            String sql = "SELECT p.id, p.name, p.version, p.config, p.thumbnail, p.firstsale,\n" +
+                    "GROUP_CONCAT(DISTINCT d.ram ORDER BY d.ram ASC SEPARATOR '-') AS ram,\n" +
+                    "GROUP_CONCAT(DISTINCT d.rom ORDER BY d.rom ASC SEPARATOR '-') AS rom,\n" +
+                    "min(d.price) as price,\n" +
+                    "count(DISTINCT c.id) as totalComment,\n" +
+                    "avg(c.star) as rate,\n" +
+                    "p.avai as avai\n" +
+                    "from products p join productdetails d on p.id = d.productID\n" +
+                    "\tleft join comments c on c.objectID = p.id\n" +
+                    "where de.id in " + idsCondition +
+                    " group by p.id\n";
+            PreparedStatement pst = conn.prepareStatement(sql);
+//            System.out.println(pst);
+            ResultSet rs = pst.executeQuery();
+            while(rs.next()){
+                int id = rs.getInt("id");
+                String name = rs.getString("name");
+                String version= rs.getString("version");
+                String config= rs.getString("config");
+                String thumbnail=rs.getString("thumbnail");
+                String firstSale=rs.getString("firstsale");
+                String ram=rs.getString("ram");
+                String rom=rs.getString("rom");
+                double price=rs.getDouble("price");
+                double star=rs.getDouble("rate");
+                int totalComment=rs.getInt("totalComment");
+                int avai=rs.getInt("avai");
+                res.add(new ProductUnit(id, name, version, config ,thumbnail, firstSale, ram, rom, price, star, totalComment, 0, null,avai));
+
+            }
+            JDBCUtil.closeConnection(conn);
+            return res;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+
 
 
 
 
     public static void main(String[] args) {
-        String json = "{  \"versions\": [    {      \"name\": \"thuowng\",      \"color\": \"xanhn\",      \"ram\": \"1\",      \"rom\": \"1\",      \"price\": \"1\",      \"qty\": \"1\"    },    {      \"name\": \"thuowng\",      \"color\": \"den\",      \"ram\": \"1\",      \"rom\": \"1\",      \"price\": \"1\",      \"qty\": \"1\"    },    {      \"name\": \"plus\",      \"color\": \"vang\",      \"ram\": \"1\",      \"rom\": \"1\",      \"price\": \"1\",      \"qty\": \"1\"    }  ]}";
-
-//        ArrayList<String> versionNames = new ArrayList<>();
-        Map<String,ArrayList<ProductDetail>> map = new HashMap<>();
-        JsonObject root = JsonParser.parseString(json).getAsJsonObject();
-
-        // Lấy mảng "versions"
-        JsonArray versions = root.getAsJsonArray("versions");
-
-        // Duyệt qua từng đối tượng trong mảng
-        for (JsonElement element : versions) {
-            JsonObject version = element.getAsJsonObject();
-
-            // Lấy các thuộc tính
-            String name = version.get("name").getAsString();
-//            if(!versionNames.contains(name)) versionNames.add(name);
-            if(!map.containsKey(name)) map.put(name, new ArrayList<>());
-            String color = version.get("color").getAsString();
-            int ram = version.get("ram").getAsInt();
-            int rom = version.get("rom").getAsInt();
-            double price = version.get("price").getAsDouble();
-            int qty = version.get("qty").getAsInt();
-            ProductDetail p = new ProductDetail(color,ram,rom,price,qty);
-            map.get(name).add(p);
-
-
-            }
-        for (Map.Entry<String, ArrayList<ProductDetail>> entry : map.entrySet()) {
-            System.out.println("version: " + entry.getKey());
-            for(ProductDetail pd : entry.getValue()) {
-                System.out.println("\tdetail:" + pd.getColor() + ", " + pd.getRam()+", "
-                        + pd.getRom() +", " + pd.getPrice() + ", " + pd.getQty());
-            }
-        }
+        ProductUnit p = ProductUnitDAO.getInstance().selectById(52);
 
     }
 }
