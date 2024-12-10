@@ -138,11 +138,17 @@ public class UserDAO implements IDAO<User> {
                 String reEmail = rs.getString("email");
                 String rolesJson = rs.getString("roles");
                 System.out.println("rolesJson: " + rolesJson);
-                Gson gson = new Gson();
-                String[] roles = gson.fromJson(rolesJson, String[].class);
-                System.out.println("roles1: " + roles[0]);
+                String info = rs.getString("info");
+                if(rolesJson!=null) {
+                    Gson gson = new Gson();
+                    String[] roles = gson.fromJson(rolesJson, String[].class);
+                    System.out.println("roles1: " + roles[0]);
 
-                user = new User(id,name,reEmail,roles,"");
+                    user = new User(id,name,reEmail,roles,info);
+                } else {
+                    user = new User(id,name,reEmail,null,info);
+                }
+
             }
 
             JDBCUtil.closeConnection(conn);

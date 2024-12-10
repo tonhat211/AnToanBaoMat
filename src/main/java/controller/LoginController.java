@@ -43,14 +43,15 @@ public class LoginController extends HttpServlet {
                         resp.getWriter().write(html);
                     } else { // thanh cong
                         System.out.println("login success");
-                        String page = req.getParameter("page");
                         String html;
                         session.setAttribute("userLogging",u);
-                        System.out.println("page: " + page);
-                        html = renderHtml("SUCCESS",page);
-                        if(u.getRoles().length!=0) { //admin
+                        if(u.getRoles()!= null) { //admin
                             System.out.println("confirm admin");
                             html = callFunction("forward(\"adminmenu?action=init\");");
+                        }
+                        else {
+                            System.out.println("confirm user");
+                            html = callFunction("forward(\"product?action=init&category=smartphone\");");
                         }
                         resp.getWriter().write(html);
                     }
@@ -112,7 +113,7 @@ public class LoginController extends HttpServlet {
             }
             else  {
                 html = "   <script>\n" +
-                        "      forward(\"product?action=init&&category=smartphone\");\n" +
+                        "      forward(\"product?action=init&category=smartphone\");\n" +
                         " </script>";
             }
             System.out.println(html);

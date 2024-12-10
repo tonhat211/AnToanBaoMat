@@ -10,9 +10,9 @@
     margin-left: auto;
 }
 
-#header ul {
-    display: block;
-}
+/*#header ul {*/
+/*    display: block;*/
+/*}*/
 
 .search-bar {
     border: 1px solid var(--blue-color);

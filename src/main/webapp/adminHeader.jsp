@@ -55,14 +55,14 @@
 
             <li class="nav-item dropdown pe-3">
 
-                <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" onfocus="handleFocus(event)">
+                <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#">
                     <span class="d-none d-md-block dropdown-toggle ps-2"><%=userLogging.getName()%></span>
                 </a><!-- End Profile Iamge Icon -->
 
-                <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">
+                <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile" id="profile-dropdown">
                     <li class="dropdown-header">
-                        <h6>chuc vu</h6>
-                        <span>phong ban</span>
+                        <h6><%=userLogging.getUserInfo().getPosition()%></h6>
+                        <span><%=userLogging.getUserInfo().getArea()%></span>
                     </li>
                     <li>
                         <hr class="dropdown-divider">
@@ -94,14 +94,21 @@
 
         const link = document.querySelector('.nav-profile');
 
-        link.addEventListener("focus", (e) => {
-            e.preventDefault();
-            document.querySelector('.profile').classList.add('active');
+        link.addEventListener("click", (e) => {
+            e.preventDefault(); // Ngăn chặn hành vi mặc định
+            e.stopPropagation();
+            document.querySelector('#profile-dropdown').classList.add('active');
+            console.log(document.querySelector('#profile-dropdown'));
         });
 
-        link.addEventListener("blur", (e) => {
-            e.preventDefault();
-            document.querySelector('.profile').classList.remove('active');
+        // Đảm bảo menu không bị đóng khi bấm vào bên trong nó
+        document.querySelector('#profile-dropdown').addEventListener("click", (e) => {
+            e.stopPropagation(); // Ngăn chặn sự kiện lan ra bên ngoài
+        });
+
+        // Đóng menu khi bấm ra ngoài
+        document.addEventListener("click", () => {
+            document.querySelector('#profile-dropdown').classList.remove('active');
         });
     </script>
 </header>
