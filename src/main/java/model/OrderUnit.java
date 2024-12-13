@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 public class OrderUnit {
-    public Order order;
+    public static Order order;
     public ArrayList<OrderDetail> details;
     public OrderUnit() {
         this.details = new ArrayList<>();
@@ -71,6 +71,15 @@ public class OrderUnit {
         for(OrderDetail detail : details) {
             ProductUnit p = detail.productUnit;
             re.append("ID: " + p.productDetailId + " - " + p.getFullName() + " ("+ p.color+"-"+p.ram+"-"+p.rom+") Số lượng: " + detail.quantity +"</br>");
+        }
+        return re.toString();
+    }
+
+    public String getIdProductList() {
+        StringBuilder re = new StringBuilder();
+        for(OrderDetail detail : details) {
+            ProductUnit p = detail.productUnit;
+            re.append("ID: " + p.productDetailId + " - " + " Số lượng: " + detail.quantity +"</br>");
         }
         return re.toString();
     }

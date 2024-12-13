@@ -12,6 +12,8 @@ public class Order {
     private LocalDateTime updateTime;
     private int status;
 
+    private String signature;
+
     public Order() {
     }
 
@@ -33,6 +35,17 @@ public class Order {
         this.dateSet = dateSet;
         this.updateTime = updateTime;
         this.status = status;
+    }
+
+    public Order(int id, double money, int userID, String address, LocalDateTime dateSet, LocalDateTime updateTime, int status, String signature) {
+        this.id = id;
+        this.money = money;
+        this.userID = userID;
+        this.address = address;
+        this.dateSet = dateSet;
+        this.updateTime = updateTime;
+        this.status = status;
+        this.signature = signature;
     }
 
     public LocalDateTime getupdateTime() {
@@ -91,6 +104,14 @@ public class Order {
         this.status = status;
     }
 
+    public String getSignature() {
+        return signature;
+    }
+
+    public void setSignature(String signature) {
+        this.signature = signature;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -114,6 +135,7 @@ public class Order {
                 ", dateSet=" + dateSet +
                 ", updateTime=" + updateTime +
                 ", status=" + status +
+                ", signature=" + signature +
                 '}';
     }
 }

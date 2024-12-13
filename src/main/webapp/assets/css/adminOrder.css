@@ -114,6 +114,26 @@
     color: black;
 }
 
+.status-box {
+    display: inline-block;
+    padding: 10px 20px;
+    color: white;
+    font-weight: bold;
+    text-align: center;
+    border-radius: 5px;
+    margin: 5px;
+}
+.signed {
+    background-color: green;
+}
+.not-signed {
+    background-color: red;
+}
+
+.info-table td, .info-table th {
+    vertical-align: middle; /* Căn giữa nội dung theo chiều dọc */
+    text-align: center; /* Căn giữa nội dung theo chiều ngang */
+}
 /*.etc {*/
 /*    display: none;*/
 /*}*/
