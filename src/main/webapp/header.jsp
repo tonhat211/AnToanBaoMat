@@ -97,6 +97,27 @@
                     <li>
                         <a href="profile?action=addressBook" class="li-address" onclick="manageAddress(event);">Sổ địa chỉ</a>
                     </li>
+                    <%
+                        if(userLogging.getPublicKey()==null) {
+                    %>
+                    <script>
+                        console.log("null public key: <%=userLogging.getPublicKey()==null?"yes":"no"%>");
+                    </script>
+                        <li>
+                            <a href="#" class="li-address" onclick="openAddPublicKeyModal(event);">Thêm public key</a>
+                        </li>
+                    <%
+                        } else {
+                    %>
+                    <script>
+                        console.log("co public key: <%=userLogging.getPublicKey()%>");
+                    </script>
+                        <li>
+                            <a href="#" class="li-address" onclick="reportKeyModal(event);">Báo cáo lộ key</a>
+                        </li>
+                    <%
+                        }
+                    %>
                     <li>
                         <a href="profile?action=info" class="li-profile" onclick="manageProfile(event);">Quản lý</a>
                     </li>
@@ -212,8 +233,6 @@
                 </script>
             </div>
         </div>
-
-
         <div class="modall info-modal" onclick="removeModal('#modal-container');">
             <div class="modall-content" style="width: 80%; background-color: unset;top: 35%;">
                 <div class="flex-roww" style="align-items: start;justify-content: center;height: 100%;">
@@ -427,7 +446,93 @@
 
             </div>
         </div>
+        <div class="modall add-public-key-modal" onclick="removeModal('#modal-container');">
+            <div class="modall-content" style="width: 60%; background-color: unset;" onclick="event.stopPropagation();">
+                <div style="width: 100%; background-color: white;border-radius: 10px;padding: 20px;">
+                    <form action="profile" method="POST" id="add-public-key-form">
+                        <input type="text" name="action" value="addPublicKey" hidden>
+                        <div class="flex-coll" style="justify-content: center;margin:22px 0;font-size: 19px">
+                            <p>Thêm public key</p>
+                            <div class="form-group grid-col-6" style="margin-top: 10px;">
+                                <div class="flex-roww" >
+                                    <input type="file" multiple data-max_length="20" accept=".txt" onchange="previewPublicKey(event);" style="margin: 5px 0;">
+                                </div>
+                                <textarea contenteditable="true" id="add-public-key" type="text" class="form-control" name="public-key" placeholder="Nhập public key" required=""></textarea>
+                            </div>
+                        </div>
+                        <div class="flex-roww" style="justify-content: space-around; margin-top: 20px">
+                            <button class="btn btn-outline-primary btn-cancel-filter" onclick="removeModal('#modal-container');"><i class="bi bi-x-lg"></i> Hủy</button>
+                            <%--                        <a href="profile?action=addSignature" class="btn btn-primary btn-filter" style="color: white;">Thêm</a>--%>
+                            <button class="btn btn-primary" type="submit">Thêm</button>
+                        </div>
+                    </form>
 
+
+
+
+                </div>
+                <script>
+                    function previewPublicKey(event) {
+                        const file = event.target.files[0];
+                        if (file && file.type === "text/plain") { // Kiểm tra định dạng file
+                            const reader = new FileReader(); // Tạo đối tượng FileReader
+                            reader.onload = function(e) {
+                                const content = e.target.result; // Lấy nội dung file
+                                document.querySelector('#add-public-key').value = content; // Hiển thị nội dung file
+                            };
+                            reader.readAsText(file); // Đọc file dưới dạng văn bản
+                        } else {
+                            alert("Please upload a valid .txt file."); // Thông báo khi file không hợp lệ
+                        }
+                    }
+
+                    document.querySelector("#add-public-key-form").addEventListener('submit', function(event) {
+                        event.preventDefault();
+                        console.log('submit add-public-key-form');
+                        var formdata = new FormData(this);
+                        var action = formdata.get("action");
+                        var publicKey = formdata.get("public-key");
+                        $.ajax({
+                            type: "post",
+                            url: "profile",
+                            data: {action: action,publicKey:publicKey},
+                            success: function(data) {
+                                $("#header-response").html(data);
+                            },
+                            error: function(error) {
+                                console.error("Error during querying info: ", error);
+                            }
+                        });
+                    });
+                </script>
+
+
+            </div>
+        </div>
+        <div class="modall report-key-modal" onclick="removeModal('#modal-container');">
+            <div class="modall-content" style="width: 60%; background-color: unset;" onclick="event.stopPropagation();">
+                <div style="width: 100%; background-color: white;border-radius: 10px;padding: 20px;">
+                    <form action="reportKey" method="POST" id="report-public-key-form">
+                        <input type="text" name="action" value="reportKey" hidden>
+                        <div class="flex-coll" style="justify-content: center;margin:22px 0;font-size: 19px">
+                            <p>Báo cáo lộ Key</p>
+                            <div class="form-group grid-col-6" style="margin-top: 10px;">
+                                <div class="flex-roww" >
+                                    <input type="datetime-local" name="time">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex-roww" style="justify-content: space-around; margin-top: 20px">
+                            <button class="btn btn-outline-primary btn-cancel-filter" onclick="removeModal('#modal-container');"><i class="bi bi-x-lg"></i> Hủy</button>
+                            <%--                        <a href="profile?action=addSignature" class="btn btn-primary btn-filter" style="color: white;">Thêm</a>--%>
+                            <button class="btn btn-primary" type="submit">Báo cáo</button>
+                        </div>
+                    </form>
+                </div>
+
+
+            </div>
+        </div>
     </div>
     <div id="header-response"></div>
 </div>

@@ -203,3 +203,12 @@
     opacity: 0.3;
     box-shadow:  0 0 4px 2px rgb(179 179 179 / 30%);
 }
+
+/* signature */
+.signature-form-container {
+    display: none;
+}
+
+.signature-form-container.active {
+    display: block;
+}

@@ -2,6 +2,7 @@ package controller;
 
 import DAO.AddressDAO;
 import DAO.UserDAO;
+import JavaMail.EmailService;
 import com.google.gson.Gson;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
@@ -16,7 +17,10 @@ import model.UserInfo;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Random;
 
 @WebServlet("/profile")
 public class ProfileController extends HttpServlet {
@@ -144,6 +148,20 @@ public class ProfileController extends HttpServlet {
                 }
                 break;
             }
+            case "ADDPUBLICKEY": {
+                String publicKey = req.getParameter("publicKey");
+                int re = UserDAO.getInstance().updatePublicKey(userLogging.getId(), publicKey);
+                if(re==1) {
+                    String html = renderToast("Thêm public key thành công");
+                    html+= renderScript("removeModal('#modal-container');");
+                    resp.setContentType("text/html");
+                    resp.setCharacterEncoding("UTF-8");
+                    resp.getWriter().write(html);
+                }
+                break;
+            }
+
+
 
         }
 

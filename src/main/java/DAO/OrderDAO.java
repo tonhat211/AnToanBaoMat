@@ -579,6 +579,72 @@ public class OrderDAO implements IDAO<Order> {
             throw new RuntimeException(e);
         }
     }
+
+    public int updateSignature(int idin, String signature) {
+        int re= 0;
+        try {
+            Connection conn = JDBCUtil.getConnection();
+            String sql = "update orders set signature = ? where id = ?";
+            PreparedStatement pst = conn.prepareStatement(sql);
+            pst.setString(1,signature);
+            pst.setInt(2,idin);
+            re = pst.executeUpdate();
+            JDBCUtil.closeConnection(conn);
+            return re;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public ArrayList<OrderUnit> selectResignOrderUnit(int userID, String time) {
+        ArrayList<OrderUnit> res = new ArrayList<>();
+        Map<Order,OrderUnit> maps = new LinkedHashMap<>();
+        ArrayList<Order> orders = selectResignOrder(userID, time);
+        ArrayList<OrderDetail> details = selectDetailByOrders(orders);
+
+        for (Order o : orders) {
+            maps.put(o, new OrderUnit(o));
+        }
+        for(OrderDetail d : details) {
+            int orderID = d.orderId;
+            maps.get(new Order(orderID)).details.add(d);
+        }
+        for (OrderUnit orderUnit : maps.values()) {
+            res.add(orderUnit);
+        }
+
+        return res;
+
+    }
+
+    public ArrayList<Order> selectResignOrder(int userIDin, String time) {
+        ArrayList<Order> res = new ArrayList<>();
+        try {
+            Connection conn = JDBCUtil.getConnection();
+            String sql = "select * from orders\n" +
+                    " where userID = ? and dateSet >= ?" +
+                    "\n   order by updateTime desc; \n";
+            PreparedStatement pst = conn.prepareStatement(sql);
+            pst.setInt(1, userIDin);
+            pst.setString(2, time);
+            ResultSet rs = pst.executeQuery();
+            while(rs.next()) {
+                int id = rs.getInt("id");
+                double money = rs.getDouble("money");
+                int userID = rs.getInt("userID");
+                String address = rs.getString("address");
+                LocalDateTime dateSet = rs.getObject("dateSet",LocalDateTime.class);
+                LocalDateTime updateTime = rs.getObject("updateTime",LocalDateTime.class);
+                int status = rs.getInt("status");
+                res.add(new Order(id,money,userID,address,dateSet,updateTime,status));
+            }
+            JDBCUtil.closeConnection(conn);
+            return res;
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
     public static void main(String[] args) {
         OrderUnit orderUnit = OrderDAO.getInstance().selectByID(30);
         System.out.println(orderUnit.order.getAddress());

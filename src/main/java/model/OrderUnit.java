@@ -121,6 +121,14 @@ public class OrderUnit {
         return "";
     }
 
+    public String getFullReveiver() {
+        return order.getAddress();
+    }
+
+    public ArrayList<OrderDetail> getDetails() {
+        return details;
+    }
+
     public static void main(String[] args) {
         LocalDateTime time = LocalDateTime.now();
         System.out.println(time.toLocalDate());

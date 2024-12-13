@@ -5,6 +5,7 @@ import DAO.CartUnitDAO;
 import DAO.OrderDAO;
 import DAO.ProductDetailDAO;
 import DAO.SaleProgramDAO;
+import com.google.gson.Gson;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -76,15 +77,26 @@ public class PaymentController extends HttpServlet {
                     Order order = new Order(Double.parseDouble(totalMoney), userLogging.getId(), address);
                     int orderID = OrderDAO.getInstance().insert(order);
                     int re = OrderDAO.getInstance().insertOrderDetail(orderID,carts);
-//                  giam so luong trong kho
-                    ProductDetailDAO.getInstance().updateSaledQty(carts);
+
 //                  xoa khoi gio hang
                     CartUnitDAO.getInstance().deleteOrderedCarts(ids);
                     if(re!=0) {
                         RequestDispatcher rd = getServletContext().getRequestDispatcher("/index.jsp");
                         rd.forward(req, resp);
-
                     }
+                    break;
+                }
+                case "SIGN": {
+                    int orderID = Integer.parseInt(req.getParameter("orderID"));
+                    String signature = req.getParameter("digital-signature");
+                    int re = OrderDAO.getInstance().updateSignature(orderID,signature);
+
+                    //  giam so luong trong kho
+                    OrderUnit orderUnit = OrderDAO.getInstance().selectByID(orderID);
+                    ArrayList<OrderDetail> details = orderUnit.getDetails();
+                    ProductDetailDAO.getInstance().updateSaledQty(details);
+
+
                     break;
                 }
                 

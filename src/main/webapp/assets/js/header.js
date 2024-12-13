@@ -181,6 +181,17 @@ function manageProfile(event) {
     loadUserInfo();
 }
 
+function openAddPublicKeyModal(event) {
+    event.preventDefault();
+    document.querySelector('.add-public-key-modal').classList.add('active');
+    document.querySelector('.add-public-key-modal').querySelector('textarea').value="";
+}
+
+function reportKeyModal(event) {
+    event.preventDefault();
+    document.querySelector('.report-key-modal').classList.add('active');
+}
+
 function loadUserInfo() {
     console.log("load user info");
     $.ajax({

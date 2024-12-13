@@ -140,7 +140,7 @@ public class VerifyCodeDAO implements IDAO<VerifyCode> {
         long seconds = timeDifferenceMillis / 1000;
         if (seconds > 0 && seconds < 300) {
             VerifyCodeDAO.getInstance().disableCode(codein);
-            return Constant.USED_CODE;
+            return 1;
         } else {
             return Constant.EXPIRED_CODE;
         }

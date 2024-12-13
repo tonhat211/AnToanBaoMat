@@ -44,7 +44,7 @@
             <form action="login" id="login-form" style="width: 100%">
                 <div class="form-group">
                     <label for="email">Email</label>
-                    <input type="email" class="form-control" id="email" name="email" aria-describedby="emailHelp" placeholder="Nhập email" required value="2003tonhat@gmail.com">
+                    <input type="email" class="form-control" id="email" name="email" aria-describedby="emailHelp" placeholder="Nhập email" required value="21130463@st.hcmuaf.edu.vn">
                 </div>
                 <div class="form-group">
                     <label for="password">Mật khẩu</label>

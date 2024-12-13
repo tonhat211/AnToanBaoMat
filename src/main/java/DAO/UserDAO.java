@@ -111,9 +111,10 @@ public class UserDAO implements IDAO<User> {
                 String email = rs.getString("email");
                 String info = rs.getString("info");
                 String rolesJson = rs.getString("roles");
+                String publicKey = rs.getString("publicKey");
                 Gson gson = new Gson();
                 String[] roles = gson.fromJson(rolesJson, String[].class);
-                user = new User(id,name,email,roles,info);
+                user = new User(id,name,email,roles,info,publicKey);
             }
 
             JDBCUtil.closeConnection(conn);
@@ -139,14 +140,15 @@ public class UserDAO implements IDAO<User> {
                 String rolesJson = rs.getString("roles");
                 System.out.println("rolesJson: " + rolesJson);
                 String info = rs.getString("info");
+                String publicKey = rs.getString("publicKey");
                 if(rolesJson!=null) {
                     Gson gson = new Gson();
                     String[] roles = gson.fromJson(rolesJson, String[].class);
                     System.out.println("roles1: " + roles[0]);
 
-                    user = new User(id,name,reEmail,roles,info);
+                    user = new User(id,name,reEmail,roles,info,publicKey);
                 } else {
-                    user = new User(id,name,reEmail,null,info);
+                    user = new User(id,name,reEmail,null,info,publicKey);
                 }
 
             }
@@ -330,6 +332,24 @@ public class UserDAO implements IDAO<User> {
                 String roles = rs.getString("roles");
                 re=roles;
             }
+
+            JDBCUtil.closeConnection(conn);
+            return re;
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public int updatePublicKey(int usedID, String newPublicKey) {
+        int re = 0;
+        try {
+            Connection conn = JDBCUtil.getConnection();
+            String sql = "update users set publicKey = ? where id = ?;";
+            PreparedStatement pst = conn.prepareStatement(sql);
+            pst.setString(1, newPublicKey);
+            pst.setInt(2, usedID);
+            re = pst.executeUpdate();
 
             JDBCUtil.closeConnection(conn);
             return re;
