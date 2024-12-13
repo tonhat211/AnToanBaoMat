@@ -18,6 +18,7 @@ public class User {
     public String info;
     public Image image;
     public int avai;
+    public String publicKey;
 
     public User() {
     }
@@ -58,12 +59,13 @@ public class User {
         this.info = info;
     }
 
-    public User(int id,String name, String email, String[] roles, String info) {
+    public User(int id,String name, String email, String[] roles, String info,String publicKey) {
         this.id = id;
         this.name = name;
         this.email = email;
         this.roles = roles;
         this.info = info;
+        this.publicKey = publicKey;
     }
 
     // dung trong image
@@ -215,6 +217,10 @@ public class User {
         userRole = userRole.toUpperCase();
         if(userRole.contains(role)) return true;
         else return false;
+    }
+
+    public String getPublicKey() {
+        return this.publicKey;
     }
 
     public static void main(String[] args) {

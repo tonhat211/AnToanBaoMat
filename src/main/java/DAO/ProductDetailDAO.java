@@ -1,6 +1,7 @@
 package DAO;
 
 import model.CartUnit;
+import model.OrderDetail;
 import model.ProductDetail;
 import service.JDBCUtil;
 
@@ -158,13 +159,13 @@ public class ProductDetailDAO implements IDAO<ProductDetail>{
         }
     }
 
-    public int updateSaledQty(ArrayList<CartUnit> orderedCarts) {
+    public int updateSaledQty(ArrayList<OrderDetail> details) {
         int re=0;
         String newValue ="";
         String condition="(";
-        for(CartUnit c : orderedCarts) {
-            newValue += "WHEN id = "+c.getProductDetailID()+" THEN qty-" +c.getQty()+"\n";
-            condition+= c.getProductDetailID()+",";
+        for(OrderDetail od : details) {
+            newValue += "WHEN id = "+od.productUnit.productDetailId+" THEN qty-" +od.quantity+"\n";
+            condition+= od.productUnit.productDetailId+",";
         }
         condition = condition.substring(0, condition.length()-1);
         condition += ")";

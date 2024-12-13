@@ -1,6 +1,7 @@
 package controller;
 
 import DAO.OrderDAO;
+import com.google.gson.Gson;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -8,9 +9,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import model.Constant;
-import model.OrderUnit;
-import model.User;
+import model.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -81,6 +80,22 @@ public class OrderController extends HttpServlet {
                 }
                 RequestDispatcher rd = getServletContext().getRequestDispatcher("/order.jsp");
                 rd.forward(req, resp);
+                break;
+            }
+            case "DOWNLOAD": {
+                int id = Integer.parseInt(req.getParameter("id"));
+                OrderUnit orderUnit = OrderDAO.getInstance().selectByID(id);
+                ArrayList<OrderDetail> details = orderUnit.getDetails();
+                ArrayList<CartUnit> products = new ArrayList<>();
+                for(OrderDetail d : details) {
+                    products.add(new CartUnit(d.productUnit.productDetailId,d.currentPrice,d.quantity));
+                }
+                Gson gson = new Gson();
+                PartialOrder partialOrder = new PartialOrder(orderUnit.getOrderID(),orderUnit.order.getMoney(),orderUnit.getFullReveiver(),orderUnit.order.getDateSet(),products);
+                String orderJson = gson.toJson(partialOrder);
+                resp.setContentType("text/plain");
+                resp.setCharacterEncoding("UTF-8");
+                resp.getWriter().write(orderJson);
                 break;
             }
 

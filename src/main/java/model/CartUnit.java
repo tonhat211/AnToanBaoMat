@@ -28,6 +28,13 @@ public class CartUnit {
         this.qty = qty;
     }
 
+    // partial order
+    public CartUnit(int productDetailID, double price, int qty) {
+        this.productDetailID = productDetailID;
+        this.price = price;
+        this.qty = qty;
+    }
+
     public int getId() {
         return id;
     }

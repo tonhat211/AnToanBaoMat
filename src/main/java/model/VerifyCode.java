@@ -23,6 +23,13 @@ public class VerifyCode {
         this.isVerify= Constant.AVAI_CODE;
     }
 
+    public VerifyCode(String code, String email) {
+        this.code = code;
+        this.email = email;
+        this.isVerify = Constant.AVAI_CODE;
+    }
+
+
 
 
     public String getEmail() {

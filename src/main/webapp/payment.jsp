@@ -125,7 +125,8 @@
             </div>
             <div class="seperate-horizontal"></div>
             <div class="flex-roww payment-result" style="font-size: 15px;color:var(--text-color-2);">
-                <div class="grid-col-9"></div>
+                <div class="grid-col-9">
+                </div>
                 <div class="grid-col-3">
                     <div class="flex-roww" style="justify-content: space-between;">
                         <p>Tổng tiền hàng: </p>
@@ -171,7 +172,7 @@
 
     <script>
         const paymentForm = document.querySelector('#paymentForm');
-        paymentForm.addEventListener('click', function (event) {
+        paymentForm.addEventListener('submit', function (event) {
             event.preventDefault();
             console.log("submit payment");
             const addressInput = this.querySelector('input[name="address-input"]');
@@ -185,7 +186,23 @@
             const totalMoneyInput = this.querySelector('input[name="total-money-input"]');
             var totalMoney = document.querySelector('#total-money').innerText.replace(/\./g, '').replace(',', '.');
             totalMoneyInput.value = totalMoney;
-            this.submit();
+            var form = new FormData(this);
+            $.ajax({
+                url: "payment?action=order", // Đường dẫn Servlet xử lý
+                type: "POST",
+                data: form,
+                success: function(response) {
+                    const blob = new Blob([response], { type: "text/plain" });
+                    const link = document.createElement("a");
+                    link.href = URL.createObjectURL(blob);
+                    link.download = "Đơn hàng ID "+id+".txt";
+                    link.click();
+                    URL.revokeObjectURL(link.href);
+                },
+                error: function (xhr, status, error) {
+                    console.error("Có lỗi xảy ra: ", error);
+                }
+            });
 
         });
     </script>
@@ -217,6 +234,78 @@
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+        <div class="modall sign-order-modal active" onclick="removeModal('#modal-container2');">
+            <div class="modall-content" style="width: 40%; background-color: unset;">
+                <div class="flex-roww" style="align-items: start;justify-content: space-between;height: 100%;">
+                    <div class="sub-content" style="margin-right: 10px;height: 100%; padding-right: 5px;" onclick="event.stopPropagation();">
+                        <form action="payment" class="group">
+                            <h3 style="text-align: center;padding-right: 10px;">Ký đơn hàng</h3>
+                            <input type="text" name="orderID" value="1">
+                            <input type="text" name="action" value="sign" hidden>
+                            <p style="text-align: center;padding-right: 10px;">Để đảm bảo an toàn, đơn hàng cần phải được ký</p>
+                            <button class="btn btn-outline-primary" type="button" onclick="downloadOrder(event)">Tải đơn hàng id <span class="orderID">1</span></button>
+                            <div class="form-group grid-col-6 signature-form-container" style="margin-top: 10px;">
+                                <div class="flex-roww" >
+                                    <label>Chữ ký</label>
+                                    <input type="file" multiple data-max_length="20" class="" accept=".txt" onchange="previewSign(event);" style="margin-left: 30px;">
+                                </div>
+                                <textarea contenteditable="true" type="text" class="form-control textarea-signature" name="digital-signature" placeholder="Nhập chữ ký" required=""></textarea>
+                            </div>
+                            <button class="btn btn-primary" type="submit">Ký</button>
+                        </form>
+                        <div>
+                            <p>Hướng dẫn ký:</p>
+                            <p>Bước 1: Tải đơn hàng về máy</p>
+                            <p>Bước 2: Mở ứng dụng chữ ký điện tử</p>
+                            <p>Bước 3: Nhập Đơn hàng đã tải vào ứng dụng</p>
+                            <p>Bước 4: Nhập Private key</p>
+                            <p>Bước 5: Chọn bắt đầu</p>
+                            <p>Bước 6: Nhập chữ ký vào mục Chữ ký lên website</p>
+
+                        </div>
+
+                    </div>
+                    <script>
+                        function downloadOrder(event) {
+                            const group = event.currentTarget.closest('.group');
+                            var id = group.querySelector('input[name="orderID"]').value;
+                            $.ajax({
+                                url: "order?action=download", // Đường dẫn Servlet xử lý
+                                type: "POST",
+                                data: {id:id},
+                                success: function(response) {
+                                    const blob = new Blob([response], { type: "text/plain" });
+                                    const link = document.createElement("a");
+                                    link.href = URL.createObjectURL(blob);
+                                    link.download = "Đơn hàng ID "+id+".txt";
+                                    link.click();
+                                    URL.revokeObjectURL(link.href);
+                                },
+                                error: function (xhr, status, error) {
+                                    console.error("Có lỗi xảy ra: ", error);
+                                }
+                            });
+                        }
+
+                        function previewSign(event) {
+                            const group = event.currentTarget.closest('.group');
+                            const file = event.target.files[0];
+                            if (file && file.type === "text/plain") { // Kiểm tra định dạng file
+                                const reader = new FileReader(); // Tạo đối tượng FileReader
+                                reader.onload = function(e) {
+                                    const content = e.target.result; // Lấy nội dung file
+                                    group.querySelector('textarea[name="digital-signature"]').value = content; // Hiển thị nội dung file
+                                };
+                                reader.readAsText(file); // Đọc file dưới dạng văn bản
+                            } else {
+                                alert("Please upload a valid .txt file."); // Thông báo khi file không hợp lệ
+                            }
+                        }
+
+                    </script>
                 </div>
             </div>
         </div>
