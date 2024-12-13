@@ -29,6 +29,21 @@
     <!-- css tu them   -->
     <link href="./assets/css/login.css" rel="stylesheet">
     <link href="./assets/css/forgetPassword.css" rel="stylesheet">
+    <style>
+        .wrong-otp {
+            color: red;
+            padding: 0 4px;
+            width: fit-content;
+            border-radius: 4px;
+            margin: 4px 0;
+            font-size: 14px;
+            background-color: rgba(255, 0, 0, 0.22);
+            display: none;
+        }
+        .wrong-otp.active {
+            display: block !important;
+        }
+    </style>
 
 </head>
 <body>
@@ -59,7 +74,7 @@
                         <input class="form-control otp-input empty" required maxlength="1" type="number" id="o4" name="o4" onkeyup="alter_box(event)" />
                         <input class="form-control otp-input empty" required maxlength="1" type="number" id="o5" name="o5" onkeyup="alter_box(event)" />
                     </div>
-                    <span class="pwd-error">Mã xác nhận sai. Vui lòng nhập lại</span>
+                    <span class="wrong-otp">Mã xác nhận sai. Vui lòng nhập lại</span>
                     <p style="text-align: center;">Chưa nhận được mã?</p>
                     <div class="flex-coll group" style="justify-content: center;margin-top: 15px;">
                         <p style="text-align: center;" id="countdown-container" class="active" >Vui lòng đợi <span id="countdown">0s</span></p>
@@ -81,10 +96,9 @@
 <%--            </div>--%>
 <%--        </div>--%>
     </div>
-    <div id="server-response"></div>
+    <div id="reportKey-response"></div>
     <script>
         countdown(60,'#countdown','#btn-resend');
-
         function resend(event) {
             event.preventDefault();
             var url = event.currentTarget.href;
@@ -103,7 +117,7 @@
         }
 
         function wrongOTP() {
-            document.querySelector('.pwd-error').classList.add('active');
+            document.querySelector('.wrong-otp').classList.add('active');
         }
 
         function verify(event) {
@@ -115,12 +129,14 @@
             var o5 = group.querySelector('input[name="o5"]').value;
             var otp = o1+""+o2+""+o3+""+o4+""+o5;
             var time = group.querySelector('input[name="time"]').value;
+            console.log("verify");
             $.ajax({
                 type: "POST",
                 url: "reportKey",
                 data: {action:"verifyOTP",otp:otp,time:time},
                 success: function(data) {
-                    wrongOTP();
+                    $('#reportKey-response').html(data);
+                    // wrongOTP();
                     // document.querySelector('#server-response').innerHTML = data;
                 },
                 error: function(error) {

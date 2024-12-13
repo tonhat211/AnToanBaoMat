@@ -66,23 +66,28 @@ public class PaymentController extends HttpServlet {
                     break;
                 }
                 case "ORDER" : {
-                    String[] idArr = req.getParameterValues("cart-id");
+                    String idsJson = req.getParameter("idsJson");
+                    Gson gson = new Gson();
+                    String[] idArr = gson.fromJson(idsJson, String[].class);
                     ArrayList<Integer> ids = new ArrayList<>();
                     for(String id : idArr) {
                         ids.add(Integer.parseInt(id));
                     }
+
                     ArrayList<CartUnit> carts = CartUnitDAO.getInstance().selectByIDs(ids);
-                    String address = req.getParameter("address-input");
-                    String totalMoney = req.getParameter("total-money-input");
+                    String address = req.getParameter("address");
+                    String totalMoney = req.getParameter("totalMoney");
+
                     Order order = new Order(Double.parseDouble(totalMoney), userLogging.getId(), address);
                     int orderID = OrderDAO.getInstance().insert(order);
+
                     int re = OrderDAO.getInstance().insertOrderDetail(orderID,carts);
 
 //                  xoa khoi gio hang
                     CartUnitDAO.getInstance().deleteOrderedCarts(ids);
                     if(re!=0) {
-                        RequestDispatcher rd = getServletContext().getRequestDispatcher("/index.jsp");
-                        rd.forward(req, resp);
+                        String html = callFuntion("setupSignOrderModal("+orderID+");");
+                        resp.getWriter().write(html);
                     }
                     break;
                 }
@@ -95,8 +100,9 @@ public class PaymentController extends HttpServlet {
                     OrderUnit orderUnit = OrderDAO.getInstance().selectByID(orderID);
                     ArrayList<OrderDetail> details = orderUnit.getDetails();
                     ProductDetailDAO.getInstance().updateSaledQty(details);
-
-
+                    resp.sendRedirect("order");
+//                    RequestDispatcher rd = getServletContext().getRequestDispatcher("/order");
+//                    rd.forward(req, resp);
                     break;
                 }
                 
@@ -116,6 +122,9 @@ public class PaymentController extends HttpServlet {
         doGet(req, resp);
     }
 
+    public String callFuntion(String function) {
+        return "<script>" + function + "</script>";
+    }
 
 
 }

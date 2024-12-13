@@ -31,20 +31,32 @@ public class ResignOrderController extends HttpServlet {
         HttpSession session = req.getSession();
         User userLogging = (User) session.getAttribute("userLogging");
         String action  =req.getParameter("action");
-        if(action==null) {
-            String time = req.getParameter("time");
-            ArrayList<OrderUnit> orderUnits =  OrderDAO.getInstance().selectResignOrderUnit(userLogging.getId(), time);
-            req.setAttribute("orderUnits", orderUnits);
-            RequestDispatcher rd = getServletContext().getRequestDispatcher("/resignOrder.jsp");
-            rd.forward(req, resp);
-            return;
-        }
+        System.out.println("Resign order controller");
+        System.out.println("Action: " + action);
+
         action = action.toUpperCase();
         switch (action) {
+            case "INIT": {
+
+                ArrayList<OrderUnit> orderUnits =  OrderDAO.getInstance().selectResignOrderUnit(userLogging.getId());
+                req.setAttribute("orderUnits", orderUnits);
+                System.out.println("get order units");
+                RequestDispatcher rd = getServletContext().getRequestDispatcher("/resignOrder.jsp");
+                rd.forward(req, resp);
+                break;
+            }
             case "RESIGN": {
                 int id = Integer.parseInt(req.getParameter("id"));
                 String signature = req.getParameter("signature");
                 int re = OrderDAO.getInstance().updateSignature(id, signature);
+                if(re==1) {
+                    resp.getWriter().write("");
+                }
+                break;
+            }
+            case "CANCEL": {
+                int id = Integer.parseInt(req.getParameter("id"));
+                int re = OrderDAO.getInstance().updateStatus(id, Constant.CANCEL);
                 if(re==1) {
                     resp.getWriter().write("");
                 }

@@ -596,10 +596,10 @@ public class OrderDAO implements IDAO<Order> {
         }
     }
 
-    public ArrayList<OrderUnit> selectResignOrderUnit(int userID, String time) {
+    public ArrayList<OrderUnit> selectResignOrderUnit(int userID) {
         ArrayList<OrderUnit> res = new ArrayList<>();
         Map<Order,OrderUnit> maps = new LinkedHashMap<>();
-        ArrayList<Order> orders = selectResignOrder(userID, time);
+        ArrayList<Order> orders = selectResignOrder(userID);
         ArrayList<OrderDetail> details = selectDetailByOrders(orders);
 
         for (Order o : orders) {
@@ -612,21 +612,18 @@ public class OrderDAO implements IDAO<Order> {
         for (OrderUnit orderUnit : maps.values()) {
             res.add(orderUnit);
         }
-
         return res;
-
     }
 
-    public ArrayList<Order> selectResignOrder(int userIDin, String time) {
+    public ArrayList<Order> selectResignOrder(int userIDin) {
         ArrayList<Order> res = new ArrayList<>();
         try {
             Connection conn = JDBCUtil.getConnection();
             String sql = "select * from orders\n" +
-                    " where userID = ? and dateSet >= ?" +
+                    " where userID = ? and signature like 'resign' and status <" + Constant.CANCEL +
                     "\n   order by updateTime desc; \n";
             PreparedStatement pst = conn.prepareStatement(sql);
             pst.setInt(1, userIDin);
-            pst.setString(2, time);
             ResultSet rs = pst.executeQuery();
             while(rs.next()) {
                 int id = rs.getInt("id");
@@ -640,6 +637,24 @@ public class OrderDAO implements IDAO<Order> {
             }
             JDBCUtil.closeConnection(conn);
             return res;
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public int removeSignatureOf(int userIDin, String time) {
+        int re= 0;
+        try {
+            Connection conn = JDBCUtil.getConnection();
+            String sql = "update orders set signature='resign'\n" +
+                    " where userID = ? and dateSet >= ?;";
+            PreparedStatement pst = conn.prepareStatement(sql);
+            pst.setInt(1, userIDin);
+            pst.setString(2, time);
+            re = pst.executeUpdate();
+            JDBCUtil.closeConnection(conn);
+            return re;
 
         } catch (SQLException e) {
             throw new RuntimeException(e);
