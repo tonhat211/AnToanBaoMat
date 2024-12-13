@@ -17,6 +17,27 @@ public class OrderDAO implements IDAO<Order> {
         return new OrderDAO();
     }
 
+    public static boolean checkSign(int orderId) {
+        boolean isSigned = false; // Mặc định là chưa ký
+        try {
+            Connection conn = JDBCUtil.getConnection();
+            String sql = "SELECT signature FROM orders WHERE id = ?";
+            PreparedStatement pst = conn.prepareStatement(sql);
+            pst.setInt(1, orderId);
+            ResultSet rs = pst.executeQuery();
+            if (rs.next()) {
+                String signature = rs.getString("signature");
+                // Kiểm tra nếu chữ ký không null và không rỗng
+                isSigned = signature != null && !signature.trim().isEmpty();
+            }
+            JDBCUtil.closeConnection(conn);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Lỗi khi kiểm tra chữ ký: " + e.getMessage());
+        }
+        return isSigned;
+    }
+
     @Override
     public int insert(Order order) {
         int re=0;
@@ -646,7 +667,8 @@ public class OrderDAO implements IDAO<Order> {
         }
     }
     public static void main(String[] args) {
-        OrderUnit orderUnit = OrderDAO.getInstance().selectByID(30);
-        System.out.println(orderUnit.order.getAddress());
+//        OrderUnit orderUnit = OrderDAO.getInstance().selectByID(30);
+//        System.out.println(orderUnit.order.getAddress());
+        System.out.println(checkSign(33));
     }
 }
