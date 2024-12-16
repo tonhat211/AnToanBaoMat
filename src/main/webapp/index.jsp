@@ -9,6 +9,6 @@
 <body>
 
 <%--<%response.sendRedirect("index");%>--%>
-<%response.sendRedirect("index");%>
+<%response.sendRedirect("login");%>
 </body>
 </html>

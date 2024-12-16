@@ -1,5 +1,6 @@
 package controller;
 
+import DAO.OrderDAO;
 import DAO.UserDAO;
 import DAO.VerifyCodeDAO;
 import JavaMail.EmailService;
@@ -42,7 +43,7 @@ public class ReportKeyController extends HttpServlet {
                 for(int i=0;i<5; i++) {
                     otp+= String.valueOf(rand.nextInt(9)+1);
                 }
-
+//                otp="12345";
                 VerifyCode verifyCode = new VerifyCode(otp, userLogging.getEmail());
                 VerifyCodeDAO.getInstance().insertNewCode(verifyCode);
 
@@ -64,6 +65,7 @@ public class ReportKeyController extends HttpServlet {
                 for(int i=0;i<5; i++) {
                     otp+= String.valueOf(rand.nextInt(9)+1);
                 }
+//                otp="12345";
                 VerifyCode verifyCode = new VerifyCode(otp, userLogging.getEmail());
                 VerifyCodeDAO.getInstance().insertNewCode(verifyCode);
 
@@ -75,16 +77,20 @@ public class ReportKeyController extends HttpServlet {
                 break;
             }
             case "VERIFYOTP": {
+                System.out.println("Verify otp");
                 String otp = req.getParameter("otp");
                 int re=VerifyCodeDAO.getInstance().verifyCode(otp,userLogging.getEmail());
+                System.out.println("otp: " + otp);
                 if(re==1){
+                    System.out.println("thanh cong");
                     String time = req.getParameter("time");
-                    req.setAttribute("time",time);
-                    RequestDispatcher rd = getServletContext().getRequestDispatcher("/updatePublicKey.jsp");
-                    rd.forward(req, resp);
+                    session.setAttribute("can","yes");
+                    String html = callFuntion("window.location.href='updatePublicKey?t="+time+"';");
+                    resp.getWriter().write(html);
                     break;
                 } else {
-                    resp.getWriter().write("");
+                    System.out.println("that bai");
+                    resp.getWriter().write("wrongOTP();");
                     break;
                 }
             }
@@ -93,9 +99,11 @@ public class ReportKeyController extends HttpServlet {
                 String time = req.getParameter("time");
                 int re = UserDAO.getInstance().updatePublicKey(userLogging.getId(), publicKey);
                 if(re==1) {
-                    RequestDispatcher rd = getServletContext().getRequestDispatcher("resignOrder?time="+time);
-                    rd.forward(req, resp);
-                    return;
+                    OrderDAO.getInstance().removeSignatureOf(userLogging.getId(), time);
+                    String redirectUrl = req.getContextPath() + "/resignOrder?action=init";
+                    resp.sendRedirect(redirectUrl);
+//                    RequestDispatcher rd = getServletContext().getRequestDispatcher("/resignOrder?action=init&time="+time);
+//                    rd.forward(req, resp);
                 }
 
                 break;
@@ -106,7 +114,10 @@ public class ReportKeyController extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-
         doGet(req, resp);
+    }
+
+    public String callFuntion(String function) {
+        return "<script>" + function + "</script>";
     }
 }

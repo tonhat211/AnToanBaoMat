@@ -20,13 +20,13 @@ public class VerifyCode {
 
     public VerifyCode(String email) {
         this.email = email;
-        this.isVerify= Constant.AVAI_CODE;
+        this.isVerify= 0;
     }
 
     public VerifyCode(String code, String email) {
         this.code = code;
         this.email = email;
-        this.isVerify = Constant.AVAI_CODE;
+        this.isVerify = 0;
     }
 
 

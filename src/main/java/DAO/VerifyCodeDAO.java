@@ -38,14 +38,9 @@ public class VerifyCodeDAO implements IDAO<VerifyCode> {
         }
     }
 
-    public String insertNewCode(VerifyCode verifyCode) {
+    public int insertNewCode(VerifyCode verifyCode) {
         int re=0;
-        Random rand = new Random();
-        String code ="";
-        for(int i=0;i<6; i++) {
-            code+= String.valueOf(rand.nextInt(9)+1);
-        }
-        verifyCode.setCode(code);
+
         try {
             Connection conn = JDBCUtil.getConnection();
             String sql = "insert into verifycode (code,email,isVerify) values (?,?,?);";
@@ -55,8 +50,7 @@ public class VerifyCodeDAO implements IDAO<VerifyCode> {
             pst.setInt(3, verifyCode.getIsVerify());
             re = pst.executeUpdate();
             JDBCUtil.closeConnection(conn);
-            if(re==1) return code;
-            else return "insert code to database failed";
+            return re;
 
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -124,26 +118,20 @@ public class VerifyCodeDAO implements IDAO<VerifyCode> {
     public int verifyCode(String codein, String emailin) {
         boolean res = false;
         VerifyCode code = VerifyCodeDAO.getInstance().selectTheLastCodeOf(emailin);
-        if (code == null) {
-            return Constant.WRONG_CODE;
-        }
-        if (!codein.equals(code.getCode())) {
-            return Constant.WRONG_CODE;
-        }
-        if (code.getIsVerify() == 0) {
-            return Constant.USED_CODE;
-        }
-        long codeTime = code.getTime().getTime();
-        long currentTimestamp = System.currentTimeMillis();
-        long timeDifferenceMillis = currentTimestamp - codeTime;
+        if(code.getIsVerify()==1) return 0;
+        if(code.getCode().equals(codein)) {
+            long codeTime = code.getTime().getTime();
+            long currentTimestamp = System.currentTimeMillis();
+            long timeDifferenceMillis = currentTimestamp - codeTime;
+            long seconds = timeDifferenceMillis / 1000;
+            if (seconds > 0 && seconds < 300) {
+                VerifyCodeDAO.getInstance().disableCode(codein);
+                return 1;
+            }
 
-        long seconds = timeDifferenceMillis / 1000;
-        if (seconds > 0 && seconds < 300) {
-            VerifyCodeDAO.getInstance().disableCode(codein);
-            return 1;
-        } else {
-            return Constant.EXPIRED_CODE;
         }
+        return 0;
+
     }
 
     public static void main(String[] args) {

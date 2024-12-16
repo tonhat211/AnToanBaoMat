@@ -141,31 +141,37 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="grid-col-4">
-                            <div class="flex-roww">
-                                <div class="flex-roll">
+                        <div class="grid-col-4" style="padding: 10px;">
+                            <div class="">
+                                <div class="flex-roll grid-col-12">
                                     <button class="btn btn-outline-primary" type="button" onclick="downloadOrder(<%=o.getOrderID()%>)">Tải đơn hàng id <%=o.getOrderID()%></button>
-                                    <div class="form-group grid-col-6 signature-form-container" style="margin-top: 10px;">
-                                        <div class="flex-roww" >
+                                    <div class="flex-roww" style="justify-content: space-between;">
+                                        <div class="form-group signature-form-container" style="margin-top: 10px;">
                                             <label>Chữ ký</label>
-                                            <input type="file" multiple data-max_length="20" class="" accept=".txt" onchange="previewSign(event);" style="margin-left: 30px;">
+                                            <input type="file" data-max_length="20" class="" accept=".txt" onchange="previewSign(event);" style="font-size: 10px;">
+                                            <textarea contenteditable="true" type="text" class="form-control textarea-signature" name="digital-signature" placeholder="Nhập chữ ký" required="" style="width: 100%"></textarea>
                                         </div>
-                                        <textarea contenteditable="true" type="text" class="form-control textarea-signature" name="digital-signature" placeholder="Nhập chữ ký" required=""></textarea>
+                                        <button class="btn btn-primary" type="button" onclick="resign(event)">Ký lại</button>
                                     </div>
-                                    <button class="btn btn-primary" type="button" onclick="resign(event)">Ký lại</button>
+
 
                                 </div>
+                                <div class="seperate-horizontal-100"></div>
                                 <div>
                                     <p>Đơn hàng không phải do bạn phát sinh?</p>
                                     <%
-                                        if(o.getStatus()<=Constant.CONFIRM) {
+                                        if(o.getStatus()<=Constant.CANCEL) {
                                     %>
-                                        <a class="btn btn-third btn-status-10" href="order?action=cancel&id=<%=o.getOrderID()%>">Hủy</a>
+                                        <div class="flex-roww" style="justify-content: right;">
+                                            <a class="btn btn-third btn-status-10" href="resignOrder?action=cancel&id=<%=o.getOrderID()%>" onclick="cancel(event);">Hủy</a>
+                                        </div>
                                     <%
                                         } else if(o.getStatus()==Constant.COMPLETE) {
                                     %>
                                         <p>Yêu cầu xử lý hoàn tiền</p>
-                                        <a class="btn btn-third btn-status-10" href="order?action=cancel&id=<%=o.getOrderID()%>">Yêu cầu</a>
+                                        <div class="flex-roww" style="justify-content: right;">
+                                            <a class="btn btn-third btn-status-10" href="resignOrder?action=request&id=<%=o.getOrderID()%>">Yêu cầu</a>
+                                        </div>
                                     <%
                                         }
                                     %>
@@ -182,9 +188,6 @@
 
             </div>
         </div>
-<%--        <%--%>
-<%--            OrderUnit order = orderUnits.get(0);--%>
-<%--        %>--%>
 
     </div>
 </div>
@@ -226,6 +229,7 @@
     function resign(event) {
         const group = event.currentTarget.closest('.group');
         var signature = group.querySelector('textarea[name="digital-signature"]').value;
+        if(signature=='') return;
         var id = group.querySelector('.orderID').innerText;
         $.ajax({
             url: "resignOrder?action=resign", // Đường dẫn Servlet xử lý
@@ -234,6 +238,24 @@
             success: function(response) {
                 group.style.display = 'none';
                 showSuccessToast('Cập nhật thành công!');
+            },
+            error: function (xhr, status, error) {
+                console.error("Có lỗi xảy ra: ", error);
+            }
+        });
+    }
+
+    function cancel(event) {
+        event.preventDefault();
+        var url =event.currentTarget.href;
+        const group = event.currentTarget.closest('.group');
+        console.log(url);
+        $.ajax({
+            url: url,
+            type: "POST",
+            data: {},
+            success: function(response) {
+                group.style.display = 'none';
             },
             error: function (xhr, status, error) {
                 console.error("Có lỗi xảy ra: ", error);
