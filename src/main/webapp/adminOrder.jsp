@@ -133,7 +133,7 @@
                     <%
                         for (OrderUnit o : orderunits) {
                             int orderId = o.getOrderID(); // Lấy orderId từ đối tượng OrderUnit
-                            boolean isSigned = OrderDAO.checkSign(orderId); // Kiểm tra chữ ký
+                            int signStatus = OrderDAO.checkSign(orderId); // Kiểm tra chữ ký
                     %>
                     <tr class="group">
                         <th scope="row" class="grid-col-0_5 text-center id"
@@ -149,8 +149,10 @@
                         <td class="grid-col-1_5"><%=o.getTotalMoney()%>
                         </td>
                         <td>
-                            <% if (isSigned) { %>
+                            <% if (signStatus == 1) { %>
                             <span class="status-box signed">Đã ký</span>
+                            <% } else if (signStatus == -1) { %>
+                            <span class="status-box invalid-sign">Chữ ký sai</span>
                             <% } else { %>
                             <span class="status-box unsigned">Chưa ký</span>
                             <% } %>

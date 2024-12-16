@@ -17,26 +17,58 @@ public class OrderDAO implements IDAO<Order> {
         return new OrderDAO();
     }
 
-    public static boolean checkSign(int orderId) {
-        boolean isSigned = false; // Mặc định là chưa ký
+    public static int checkSign(int orderId) {
+        int signStatus = 0; // Mặc định là chưa ký (0)
         try {
+            // Kết nối tới cơ sở dữ liệu
             Connection conn = JDBCUtil.getConnection();
-            String sql = "SELECT signature FROM orders WHERE id = ?";
-            PreparedStatement pst = conn.prepareStatement(sql);
-            pst.setInt(1, orderId);
-            ResultSet rs = pst.executeQuery();
-            if (rs.next()) {
-                String signature = rs.getString("signature");
-                // Kiểm tra nếu chữ ký không null và không rỗng
-                isSigned = signature != null && !signature.trim().isEmpty();
+
+            // Lấy thông tin chữ ký và userID từ bảng orders
+            String sqlOrder = "SELECT signature, userID, CONCAT(id, money, userID, address, dateSet) AS rawData FROM orders WHERE id = ?";
+            PreparedStatement pstOrder = conn.prepareStatement(sqlOrder);
+            pstOrder.setInt(1, orderId);
+            ResultSet rsOrder = pstOrder.executeQuery();
+
+            if (rsOrder.next()) {
+                String signature = rsOrder.getString("signature");
+                int userId = rsOrder.getInt("userID");
+                String rawData = rsOrder.getString("rawData"); // Dữ liệu gốc để tạo chữ ký
+
+                // Nếu chữ ký tồn tại
+                if (signature != null && !signature.trim().isEmpty()) {
+                    // Lấy public key từ bảng users
+                    String sqlUser = "SELECT publicKey FROM users WHERE id = ?";
+                    PreparedStatement pstUser = conn.prepareStatement(sqlUser);
+                    pstUser.setInt(1, userId);
+                    ResultSet rsUser = pstUser.executeQuery();
+
+                    if (rsUser.next()) {
+                        String publicKeyString = rsUser.getString("publicKey");
+
+                        // Xác minh chữ ký
+                        if (OrderUnit.verifySignature(rawData, signature, publicKeyString)) {
+                            signStatus = 1; // Chữ ký hợp lệ
+                        } else {
+                            signStatus = -1; // Chữ ký sai
+                        }
+                    }
+                    rsUser.close();
+                    pstUser.close();
+                }
             }
+
+            // Đóng kết nối
+            rsOrder.close();
+            pstOrder.close();
             JDBCUtil.closeConnection(conn);
-        } catch (SQLException e) {
+
+        } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException("Lỗi khi kiểm tra chữ ký: " + e.getMessage());
         }
-        return isSigned;
+        return signStatus;
     }
+
 
     @Override
     public int insert(Order order) {
