@@ -9,9 +9,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 public class OrderDAO implements IDAO<Order> {
     public static OrderDAO getInstance(){
         return new OrderDAO();
@@ -20,23 +23,55 @@ public class OrderDAO implements IDAO<Order> {
     public static int checkSign(int orderId) {
         int signStatus = 0; // Mặc định là chưa ký (0)
         try {
-            // Kết nối tới cơ sở dữ liệu
             Connection conn = JDBCUtil.getConnection();
 
-            // Lấy thông tin chữ ký và userID từ bảng orders
-            String sqlOrder = "SELECT signature, userID, CONCAT(id, money, userID, address, dateSet) AS rawData FROM orders WHERE id = ?";
+            // Truy vấn thông tin đơn hàng
+            String sqlOrder = "SELECT id, money, userID, address, dateSet, signature FROM orders WHERE id = ?";
             PreparedStatement pstOrder = conn.prepareStatement(sqlOrder);
             pstOrder.setInt(1, orderId);
             ResultSet rsOrder = pstOrder.executeQuery();
 
             if (rsOrder.next()) {
+                // Lấy thông tin từ bảng `orders`
+                int id = rsOrder.getInt("id");
+                double totalMoney = rsOrder.getDouble("money");
+                String receiver = rsOrder.getString("address");
+                LocalDateTime dateSet = rsOrder.getTimestamp("dateSet").toLocalDateTime();
                 String signature = rsOrder.getString("signature");
                 int userId = rsOrder.getInt("userID");
-                String rawData = rsOrder.getString("rawData"); // Dữ liệu gốc để tạo chữ ký
 
-                // Nếu chữ ký tồn tại
+                // Truy vấn thông tin sản phẩm từ bảng `orderdetails`
+                String sqlDetails = "SELECT productDetailID, currentPrice, qty FROM orderdetails WHERE orderID = ?";
+                PreparedStatement pstDetails = conn.prepareStatement(sqlDetails);
+                pstDetails.setInt(1, orderId);
+                ResultSet rsDetails = pstDetails.executeQuery();
+
+                ArrayList<CartUnit> products = new ArrayList<>();
+                while (rsDetails.next()) {
+                    CartUnit product = new CartUnit(
+                            rsDetails.getInt("productDetailID"),
+                            rsDetails.getDouble("currentPrice"),
+                            rsDetails.getInt("qty")
+                    );
+                    products.add(product);
+                }
+                rsDetails.close();
+                pstDetails.close();
+
+                // Tạo đối tượng PartialOrder (chung logic với "DOWNLOAD")
+                PartialOrder partialOrder = new PartialOrder(id, totalMoney, receiver, dateSet, products);
+
+                // Chuyển đối tượng PartialOrder thành JSON
+                Gson gson = new GsonBuilder()
+                        .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
+                        .create();
+                String rawData = gson.toJson(partialOrder);
+
+//                System.out.println("rawData: " + rawData);
+//                System.out.println("signature: " + signature);
+
                 if (signature != null && !signature.trim().isEmpty()) {
-                    // Lấy public key từ bảng users
+                    // Truy vấn public key từ bảng `users`
                     String sqlUser = "SELECT publicKey FROM users WHERE id = ?";
                     PreparedStatement pstUser = conn.prepareStatement(sqlUser);
                     pstUser.setInt(1, userId);
@@ -44,6 +79,7 @@ public class OrderDAO implements IDAO<Order> {
 
                     if (rsUser.next()) {
                         String publicKeyString = rsUser.getString("publicKey");
+//                        System.out.println("publicKeyString: " + publicKeyString);
 
                         // Xác minh chữ ký
                         if (OrderUnit.verifySignature(rawData, signature, publicKeyString)) {
@@ -57,17 +93,14 @@ public class OrderDAO implements IDAO<Order> {
                 }
             }
 
-            // Đóng kết nối
             rsOrder.close();
             pstOrder.close();
-            JDBCUtil.closeConnection(conn);
-
         } catch (Exception e) {
             e.printStackTrace();
-            throw new RuntimeException("Lỗi khi kiểm tra chữ ký: " + e.getMessage());
         }
         return signStatus;
     }
+
 
 
     @Override
@@ -253,27 +286,27 @@ public class OrderDAO implements IDAO<Order> {
 
     public ArrayList<OrderDetail> selectDetailByOrders(ArrayList<Order> orders) {
         ArrayList<OrderDetail> res = new ArrayList<>();
-        if(orders.size()==0) {return new ArrayList<>();}
-        String idList = "(" ;
-        for(Order o : orders){
-            idList+=o.getId()+",";
-        }
-        idList=idList.substring(0, idList.length()-1);
-        idList+=")";
-//        System.out.println(idList);
-        try {
-            Connection conn = JDBCUtil.getConnection();
-            String sql = "select od.orderID as oid, pd.id as pdid, \n" +
-                    "p.name, p.version,  \n" +
-                    "    pd.color, pd.ram, pd.rom, " +
-                    "    od.qty, od.currentPrice, \n" +
-                    "   p.thumbnail \n" +
-                    "    from orderdetails od join productdetails pd on od.productDetailID = pd.id \n" +
-                    "                       join products p on p.id = pd.productID \n" +
-                    "   where od.orderID in " + idList +";";
-            PreparedStatement pst = conn.prepareStatement(sql);
+        if (orders.isEmpty()) return res;
+
+        String placeholders = String.join(",", Collections.nCopies(orders.size(), "?"));
+        String sql = "SELECT od.orderID as oid, pd.id as pdid, " +
+                "p.name, p.version, " +
+                "pd.color, pd.ram, pd.rom, od.qty, od.currentPrice, " +
+                "p.thumbnail " +
+                "FROM orderdetails od " +
+                "JOIN productdetails pd ON od.productDetailID = pd.id " +
+                "JOIN products p ON p.id = pd.productID " +
+                "WHERE od.orderID IN (" + placeholders + ")";
+
+        try (Connection conn = JDBCUtil.getConnection();
+             PreparedStatement pst = conn.prepareStatement(sql)) {
+
+            for (int i = 0; i < orders.size(); i++) {
+                pst.setInt(i + 1, orders.get(i).getId());
+            }
+
             ResultSet rs = pst.executeQuery();
-            while(rs.next()) {
+            while (rs.next()) {
                 int oid = rs.getInt("oid");
                 int pdid = rs.getInt("pdid");
                 String name = rs.getString("name");
@@ -286,16 +319,16 @@ public class OrderDAO implements IDAO<Order> {
                 String thumbnail = rs.getString("thumbnail");
 
                 ProductUnit productUnit = new ProductUnit(pdid, name, version, color, String.valueOf(ram), String.valueOf(rom), thumbnail);
-                OrderDetail orderDetail = new OrderDetail(oid,productUnit, currentPrice, qty);
+                OrderDetail orderDetail = new OrderDetail(oid, productUnit, currentPrice, qty);
                 res.add(orderDetail);
             }
-            JDBCUtil.closeConnection(conn);
-            return res;
-
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+
+        return res;
     }
+
 
     public ArrayList<OrderUnit> selectOrderUnitByStatus(int statusCondition, int offset, int amount) {
         ArrayList<OrderUnit> res = new ArrayList<>();
@@ -307,7 +340,7 @@ public class OrderDAO implements IDAO<Order> {
             maps.put(o, new OrderUnit(o));
         }
         for(OrderDetail d : details) {
-            int orderID = d.orderId;
+            int orderID = d.getOrderId();
             maps.get(new Order(orderID)).details.add(d);
         }
         for (OrderUnit orderUnit : maps.values()) {
@@ -389,7 +422,7 @@ public class OrderDAO implements IDAO<Order> {
             maps.put(o, new OrderUnit(o));
         }
         for(OrderDetail d : details) {
-            int orderID = d.orderId;
+            int orderID = d.getOrderId();
             maps.get(new Order(orderID)).details.add(d);
         }
         for (OrderUnit orderUnit : maps.values()) {
@@ -436,24 +469,32 @@ public class OrderDAO implements IDAO<Order> {
     }
     public ArrayList<OrderUnit> selectOrderUnitByID(int statusCondition, String id, int offset, int amount) {
         ArrayList<OrderUnit> res = new ArrayList<>();
-        Map<Order,OrderUnit> maps = new LinkedHashMap<>();
-        ArrayList<Order> orders = selectOrderByID(statusCondition,id, offset, amount);
+        Map<Order, OrderUnit> maps = new LinkedHashMap<>();
+        ArrayList<Order> orders = selectOrderByID(statusCondition, id, offset, amount);
         ArrayList<OrderDetail> details = selectDetailByOrders(orders);
 
+        // Bước 1: Tạo map với Order làm khóa
         for (Order o : orders) {
             maps.put(o, new OrderUnit(o));
         }
-        for(OrderDetail d : details) {
-            int orderID = d.orderId;
-            maps.get(new Order(orderID)).details.add(d);
+
+        // Bước 2: Ghép OrderDetail vào OrderUnit
+        for (OrderDetail d : details) {
+            int orderID = d.getOrderId();
+            for (Order o : orders) {
+                if (o.getId() == orderID) {
+                    maps.get(o).details.add(d);
+                    break;
+                }
+            }
         }
-        for (OrderUnit orderUnit : maps.values()) {
-            res.add(orderUnit);
-        }
+
+        // Bước 3: Thêm kết quả vào danh sách trả về
+        res.addAll(maps.values());
 
         return res;
-
     }
+
 
 
     public int updateStatus(int idin, int newStatus) {
@@ -482,7 +523,7 @@ public class OrderDAO implements IDAO<Order> {
             maps.put(o, new OrderUnit(o));
         }
         for(OrderDetail d : details) {
-            int orderID = d.orderId;
+            int orderID = d.getOrderId();
             maps.get(new Order(orderID)).details.add(d);
         }
         for (OrderUnit orderUnit : maps.values()) {
@@ -531,7 +572,7 @@ public class OrderDAO implements IDAO<Order> {
             maps.put(o, new OrderUnit(o));
         }
         for(OrderDetail d : details) {
-            int orderID = d.orderId;
+            int orderID = d.getOrderId();
             maps.get(new Order(orderID)).details.add(d);
         }
         for (OrderUnit orderUnit : maps.values()) {
@@ -659,7 +700,7 @@ public class OrderDAO implements IDAO<Order> {
             maps.put(o, new OrderUnit(o));
         }
         for(OrderDetail d : details) {
-            int orderID = d.orderId;
+            int orderID = d.getOrderId();
             maps.get(new Order(orderID)).details.add(d);
         }
         for (OrderUnit orderUnit : maps.values()) {
@@ -717,5 +758,8 @@ public class OrderDAO implements IDAO<Order> {
 //        OrderUnit orderUnit = OrderDAO.getInstance().selectByID(30);
 //        System.out.println(orderUnit.order.getAddress());
         System.out.println(checkSign(33));
+        System.out.println(checkSign(35));
+        System.out.println(checkSign(36));
+
     }
 }

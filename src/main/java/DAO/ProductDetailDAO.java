@@ -1,6 +1,5 @@
 package DAO;
 
-import model.CartUnit;
 import model.OrderDetail;
 import model.ProductDetail;
 import service.JDBCUtil;
@@ -164,8 +163,8 @@ public class ProductDetailDAO implements IDAO<ProductDetail>{
         String newValue ="";
         String condition="(";
         for(OrderDetail od : details) {
-            newValue += "WHEN id = "+od.productUnit.productDetailId+" THEN qty-" +od.quantity+"\n";
-            condition+= od.productUnit.productDetailId+",";
+            newValue += "WHEN id = "+ od.getProductUnit().productDetailId+" THEN qty-" + od.getQuantity() +"\n";
+            condition+= od.getProductUnit().productDetailId+",";
         }
         condition = condition.substring(0, condition.length()-1);
         condition += ")";

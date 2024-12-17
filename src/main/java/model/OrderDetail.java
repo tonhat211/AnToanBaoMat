@@ -1,10 +1,10 @@
 package model;
 
 public class OrderDetail {
-    public int orderId;
-    public ProductUnit productUnit;
+    private int orderId;
+    private ProductUnit productUnit;
     public double currentPrice;
-    public int quantity;
+    private int quantity;
     public OrderDetail() {}
 
     public OrderDetail(int orderId, ProductUnit productUnit, double currentPrice, int quantity) {
@@ -25,5 +25,29 @@ public class OrderDetail {
 
     public String getCurrentPrice() {
         return Constant.formatPrice(this.currentPrice);
+    }
+
+    public int getOrderId() {
+        return orderId;
+    }
+
+    public void setOrderId(int orderId) {
+        this.orderId = orderId;
+    }
+
+    public ProductUnit getProductUnit() {
+        return productUnit;
+    }
+
+    public void setProductUnit(ProductUnit productUnit) {
+        this.productUnit = productUnit;
+    }
+
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
     }
 }

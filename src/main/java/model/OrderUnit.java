@@ -8,7 +8,7 @@ import java.util.Base64;
 import java.util.Objects;
 
 public class OrderUnit {
-    public static Order order;
+    public Order order;
     public ArrayList<OrderDetail> details;
 
     public OrderUnit() {
@@ -103,8 +103,8 @@ public class OrderUnit {
     public String getProductList() {
         StringBuilder re = new StringBuilder();
         for (OrderDetail detail : details) {
-            ProductUnit p = detail.productUnit;
-            re.append("ID: " + p.productDetailId + " - " + p.getFullName() + " (" + p.color + "-" + p.ram + "-" + p.rom + ") Số lượng: " + detail.quantity + "</br>");
+            ProductUnit p = detail.getProductUnit();
+            re.append("ID: " + p.productDetailId + " - " + p.getFullName() + " (" + p.color + "-" + p.ram + "-" + p.rom + ") Số lượng: " + detail.getQuantity() + "</br>");
         }
         return re.toString();
     }
@@ -112,8 +112,8 @@ public class OrderUnit {
     public String getIdProductList() {
         StringBuilder re = new StringBuilder();
         for (OrderDetail detail : details) {
-            ProductUnit p = detail.productUnit;
-            re.append("ID: " + p.productDetailId + " - " + " Số lượng: " + detail.quantity + "</br>");
+            ProductUnit p = detail.getProductUnit();
+            re.append("ID: " + p.productDetailId + " - " + " Số lượng: " + detail.getQuantity() + "</br>");
         }
         return re.toString();
     }
