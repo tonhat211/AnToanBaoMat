@@ -51,13 +51,13 @@
 <div class="flex-roww">
     <%@ include file="adminMenu.jsp" %>
     <%
-        ArrayList<OrderUnit> orderunits = (ArrayList<OrderUnit>) request.getAttribute("orderUnits");
+        ArrayList<OrderUnit> orderUnits = (ArrayList<OrderUnit>) request.getAttribute("orderUnits");
         int numOfPages = request.getAttribute("numOfPages") != null ? (int) request.getAttribute("numOfPages") : 0;
         int byStatus = request.getAttribute("byStatus") != null ? (int) request.getAttribute("byStatus") : -1;
         String title = (String) request.getAttribute("title");
     %>
     <script>
-        console.log("page: <%=numOfPages%>");
+        console.log(" page: <%=numOfPages%>");
     </script>
     <main id="main" class="main grid-col-10">
         <div id="toast-2">
@@ -131,61 +131,72 @@
                     </thead>
                     <tbody id="order-list-container">
                     <%
-                        for (OrderUnit o : orderunits) {
+                        System.out.println("OrderUnits size: " + orderUnits.size());
+                        for (OrderUnit o : orderUnits) {
                             int orderId = o.getOrderID(); // Lấy orderId từ đối tượng OrderUnit
-                            boolean isSigned = OrderDAO.checkSign(orderId); // Kiểm tra chữ ký
+                            int signStatus = OrderDAO.checkSign(orderId); // Kiểm tra chữ ký
+
+                            System.out.println("ID: " + o.getOrderID());
+                            System.out.println("Tạo lúc: " + o.getDateSet());
+                            System.out.println("Danh sách sản phẩm: " + o.getIdProductList());
+                            System.out.println("Tổng tiền: " + o.getTotalMoney());
+                            System.out.println("Chữ ký: " + signStatus);
+                            System.out.println("Cập nhật vào: " + o.getUpdateTime());
+                            System.out.println("Trạng thái: " + o.getStatus());
+                            System.out.println("Thao tác: " + o.getNextStatusString());
                     %>
                     <tr class="group">
-                        <th scope="row" class="grid-col-0_5 text-center id"
-                            style="height: fit-content;"><%=o.getOrderID()%>
+                        <th scope="row" class="grid-col-0_5 text-center id" style="height: fit-content;">
+                            <%= o.getOrderID() %>
                         </th>
                         <td class="grid-col-1 text-center">
-                            <span class="time"><%=o.getDateSet()%></span>
+                            <span class="time"><%= o.getDateSet() %></span>
                         </td>
                         <td class="grid-col-3_5">
-                            <%=o.getIdProductList()%>
-
+                            <%= o.getIdProductList() %>
                         </td>
-                        <td class="grid-col-1_5"><%=o.getTotalMoney()%>
+                        <td class="grid-col-1_5"><%= o.getTotalMoney() %>
                         </td>
                         <td>
-                            <% if (isSigned) { %>
+                            <% if (signStatus == 1) { %>
                             <span class="status-box signed">Đã ký</span>
+                            <% } else if (signStatus == -1) { %>
+                            <span class="status-box invalid-sign">Chữ ký sai</span>
                             <% } else { %>
                             <span class="status-box unsigned">Chưa ký</span>
                             <% } %>
                         </td>
                         <td class="grid-col-1"><span
-                                class="status-<%=o.getStatus()%>"><%=Constant.getStatusString(o.getStatus())%></span>
+                                class="status-<%= o.getStatus() %>"><%= Constant.getStatusString(o.getStatus()) %></span>
                         </td>
-                        <td class="grid-col-1 text-center"><span class="updateTime time"><%=o.getUpdateTime()%></span>
+                        <td class="grid-col-1 text-center"><span class="updateTime time"><%= o.getUpdateTime() %></span>
                         </td>
                         <td class="grid-col-1">
-                            <button class="btn btn-status-<%=o.getNextStatus()%>" type="button"
-                                    onclick="updateStatus('<%=o.getOrderID()%>','<%=o.getNextStatus()%>')"><%=o.getNextStatusString()%>
+                            <button class="btn btn-status-<%= o.getNextStatus() %>" type="button"
+                                    onclick="updateStatus('<%= o.getOrderID() %>','<%= o.getNextStatus() %>')">
+                                <%= o.getNextStatusString() %>
                             </button>
                             <select name="action" onchange="handleChange(event);" data-default="none"
                                     style="margin-bottom: 15px;">
                                 <option value="none">...</option>
-                                <option value="<%=Constant.CONFIRM%>">Xác nhận</option>
-                                <option class="" value="<%=Constant.DELIVERY%>">Bàn giao</option>
-                                <option class="" value="<%=Constant.COMPLETE%>">Thành công</option>
-                                <option value="<%=Constant.CANCEL%>">Hủy</option>
+                                <option value="<%= Constant.CONFIRM %>">Xác nhận</option>
+                                <option value="<%= Constant.DELIVERY %>">Bàn giao</option>
+                                <option value="<%= Constant.COMPLETE %>">Thành công</option>
+                                <option value="<%= Constant.CANCEL %>">Hủy</option>
                                 <option value="detail">Chi tiết</option>
                             </select>
                             <div style="position: relative;">
                                 <div class="address-container sub-content">
-                                    <p><%=o.getReceiver()%>
+                                    <p><%= o.getReceiver() %>
                                     </p>
-                                    <p><%=o.getAddress()%>
+                                    <p><%= o.getAddress() %>
                                     </p>
                                 </div>
                             </div>
                         </td>
                     </tr>
-                    <%
-                        }
-                    %>
+                    <% } %>
+
 
                     <script>
                         function showAddress(event) {

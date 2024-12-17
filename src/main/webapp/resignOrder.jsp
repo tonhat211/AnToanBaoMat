@@ -82,16 +82,16 @@
                                 <div class="order-detail grid__row">
                                     <div class="grid__row grid-col-9" style="justify-content: left;">
                                         <div class="grid-col-3" style="padding: 5px;">
-                                            <img src="./assets/img/thumbnail/<%=firstDe.productUnit.thumbnail%>" alt="" style="width: 100%;">
+                                            <img src="./assets/img/thumbnail/<%=firstDe.getProductUnit().thumbnail%>" alt="" style="width: 100%;">
                                         </div>
                                         <div class="grid-col-9 flex-coll" style="padding: 5px;align-items: start;justify-content: space-between;">
-                                            <p class="product-name"><%=firstDe.productUnit.name%></p>
+                                            <p class="product-name"><%=firstDe.getProductUnit().name%></p>
                                             <p><span class="product-price"><%=firstDe.getCurrentPrice()%></span> (VND)</p>
 
                                         </div>
                                     </div>
                                     <div class="grid-col-3" style="text-align: end;">
-                                        <p>Số lượng: <span class="product-qty"><%=firstDe.quantity%></span></p>
+                                        <p>Số lượng: <span class="product-qty"><%=firstDe.getQuantity()%></span></p>
                                     </div>
                                 </div>
 
@@ -102,16 +102,16 @@
                                     <div class="order-detail grid__row <%=(i%2)!=0?"odd":""%>" onclick="showDetailsOrder.call(this)">
                                         <div class="grid__row grid-col-9" style="justify-content: left;">
                                             <div class="grid-col-3" style="padding: 5px;border: 1px solid black;">
-                                                <img src="./assets/img/thumbnail/<%=details.get(i).productUnit.thumbnail%>" alt="" style="width: 100%;">
+                                                <img src="./assets/img/thumbnail/<%=details.get(i).getProductUnit().thumbnail%>" alt="" style="width: 100%;">
                                             </div>
                                             <div class="grid-col-9 flex-coll" style="padding: 5px;align-items: start;justify-content: space-between;">
-                                                <p class="product-name"><%=details.get(i).productUnit.name%></p>
+                                                <p class="product-name"><%=details.get(i).getProductUnit().name%></p>
                                                 <p><span class="product-price"><%=details.get(i).getCurrentPrice()%></span> (VND)</p>
 
                                             </div>
                                         </div>
                                         <div class="grid-col-3" style="text-align: end;">
-                                            <p>Số lượng: <span class="product-qty"><%=details.get(i).quantity%></span></p>
+                                            <p>Số lượng: <span class="product-qty"><%=details.get(i).getQuantity()%></span></p>
                                         </div>
                                     </div>
                                     <%

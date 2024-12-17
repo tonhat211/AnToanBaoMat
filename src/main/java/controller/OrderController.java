@@ -91,7 +91,7 @@ public class OrderController extends HttpServlet {
                 ArrayList<OrderDetail> details = orderUnit.getDetails();
                 ArrayList<CartUnit> products = new ArrayList<>();
                 for(OrderDetail d : details) {
-                    products.add(new CartUnit(d.productUnit.productDetailId,d.currentPrice,d.quantity));
+                    products.add(new CartUnit(d.getProductUnit().productDetailId,d.currentPrice, d.getQuantity()));
                 }
                 Gson gson = new GsonBuilder()
                         .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
