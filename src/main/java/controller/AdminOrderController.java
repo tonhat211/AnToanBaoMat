@@ -143,43 +143,59 @@ public class AdminOrderController extends HttpServlet {
         doGet(req, resp);
     }
 
-    public String renderOrderList(ArrayList<OrderUnit> orderunits) {
-        StringBuilder re=new StringBuilder();
-        for(OrderUnit o : orderunits) {
-            String temp = "<tr class=\"group\" >\n" +
-                    "                        <th scope=\"row\" class=\"grid-col-0_5 text-center id\" style=\"height: fit-content;\">"+o.getOrderID()+"</th>\n" +
-                    "                        <td class=\"grid-col-1 text-center\">\n" +
-                    "                            <span class=\"time\">"+o.getDateSet()+"</span>\n" +
-                    "                        </td>\n" +
-                    "                        <td class=\"grid-col-3_5\">\n" +
-                                                o.getProductList() +
-                    "\n" +
-                    "                        </td>\n" +
-                    "                        <td class=\"grid-col-1_5\">"+o.getTotalMoney()+"VND</td>\n" +
-                    "                        <td class=\"grid-col-1\"><span class=\"status-"+o.getStatus()+"\">"+o.getStatusString()+"</span></td>\n" +
-                    "                        <td class=\"grid-col-1 text-center\"><span class=\"updateTime time\">"+o.getUpdateTime()+"</span></td>\n" +
-                    "                        <td class=\"grid-col-1\">\n" +
-                    "                            <button class=\"btn btn-status-"+o.getNextStatus()+"\" type=\"button\" onclick=\"updateStatus('"+o.getOrderID()+"','"+o.getNextStatus()+"')\">"+o.getNextStatusString()+"</button>\n" +
-                    "                            <select name=\"action\" onchange=\"handleChange(event);\" data-default=\"none\" style=\"margin-bottom: 15px;\" >\n" +
-                    "                                <option value=\"none\">...</option>\n" +
-                    "                                <option value=\""+ Constant.CONFIRM+"\">Xác nhận</option>\n" +
-                    "                                <option class=\"\" value=\""+Constant.DELIVERY+"\">Bàn giao</option>\n" +
-                    "                                <option class=\"\" value=\""+Constant.COMPLETE+"\">Thành công</option>\n" +
-                    "                                <option value=\""+Constant.CANCEL+"\">Hủy</option>\n" +
-                    "                                <option value=\"detail\">Chi tiết</option>\n" +
-                    "                            </select>\n" +
-                    "                            <a class=\"address-detail-btn\" href=\"\" onclick=\"event.preventDefault()\">Địa chỉ</a>\n" +
-                    "                                <div style=\"position: relative;\">\n" +
-                    "                                    <div class=\"address-container sub-content\">\n" +
-                    "                                        <p>"+o.getReceiver()+"</p>\n" +
-                    "                                        <p>"+o.getAddress()+"</p>\n" +
-                    "                                    </div>\n" +
-                    "                                </div>\n" +
-                    "                        </td>\n" +
-                    "                    </tr>";
+
+    public String renderOrderList(ArrayList<OrderUnit> orderUnits) {
+        StringBuilder re = new StringBuilder();
+        for (OrderUnit o : orderUnits) {
+            int orderId = o.getOrderID(); // Lấy orderId từ đối tượng OrderUnit
+            int signStatus = OrderDAO.checkSign(orderId); // Kiểm tra chữ ký
+
+            // Xác định trạng thái chữ ký để hiển thị
+            String signStatusHTML;
+            if (signStatus == 1) {
+                signStatusHTML = "<span class=\"status-box signed\">Đã ký</span>";
+            } else if (signStatus == -1) {
+                signStatusHTML = "<span class=\"status-box invalid-sign\">Chữ ký sai</span>";
+            } else {
+                signStatusHTML = "<span class=\"status-box unsigned\">Chưa ký</span>";
+            }
+
+            // Render HTML
+            String temp = "<tr class=\"group\">\n" +
+                    "    <th scope=\"row\" class=\"grid-col-0_5 text-center id\" style=\"height: fit-content;\">" + o.getOrderID() + "</th>\n" +
+                    "    <td class=\"grid-col-1 text-center\">\n" +
+                    "        <span class=\"time\">" + o.getDateSet() + "</span>\n" +
+                    "    </td>\n" +
+                    "    <td class=\"grid-col-3_5\">\n" +
+                    "        " + o.getProductList() + "\n" +
+                    "    </td>\n" +
+                    "    <td class=\"grid-col-1_5\">" + o.getTotalMoney() + " VND</td>\n" +
+                    "    <td class=\"grid-col-1\">" + signStatusHTML + "</td>\n" +
+                    "    <td class=\"grid-col-1\"><span class=\"status-" + o.getStatus() + "\">" + o.getStatusString() + "</span></td>\n" +
+                    "    <td class=\"grid-col-1 text-center\"><span class=\"updateTime time\">" + o.getUpdateTime() + "</span></td>\n" +
+                    "    <td class=\"grid-col-1\">\n" +
+                    "        <button class=\"btn btn-status-" + o.getNextStatus() + "\" type=\"button\" onclick=\"updateStatus('" + o.getOrderID() + "','" + o.getNextStatus() + "')\">" + o.getNextStatusString() + "</button>\n" +
+                    "        <select name=\"action\" onchange=\"handleChange(event);\" data-default=\"none\" style=\"margin-bottom: 15px;\">\n" +
+                    "            <option value=\"none\">...</option>\n" +
+                    "            <option value=\"" + Constant.CONFIRM + "\">Xác nhận</option>\n" +
+                    "            <option value=\"" + Constant.DELIVERY + "\">Bàn giao</option>\n" +
+                    "            <option value=\"" + Constant.COMPLETE + "\">Thành công</option>\n" +
+                    "            <option value=\"" + Constant.CANCEL + "\">Hủy</option>\n" +
+                    "            <option value=\"detail\">Chi tiết</option>\n" +
+                    "        </select>\n" +
+                    "        <a class=\"address-detail-btn\" href=\"\" onclick=\"event.preventDefault()\">Địa chỉ</a>\n" +
+                    "        <div style=\"position: relative;\">\n" +
+                    "            <div class=\"address-container sub-content\">\n" +
+                    "                <p>" + o.getReceiver() + "</p>\n" +
+                    "                <p>" + o.getAddress() + "</p>\n" +
+                    "            </div>\n" +
+                    "        </div>\n" +
+                    "    </td>\n" +
+                    "</tr>";
             re.append(temp);
         }
         return re.toString();
     }
+
 
 }

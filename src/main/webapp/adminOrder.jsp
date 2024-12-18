@@ -136,14 +136,14 @@
                             int orderId = o.getOrderID(); // Lấy orderId từ đối tượng OrderUnit
                             int signStatus = OrderDAO.checkSign(orderId); // Kiểm tra chữ ký
 
-                            System.out.println("ID: " + o.getOrderID());
-                            System.out.println("Tạo lúc: " + o.getDateSet());
-                            System.out.println("Danh sách sản phẩm: " + o.getIdProductList());
-                            System.out.println("Tổng tiền: " + o.getTotalMoney());
-                            System.out.println("Chữ ký: " + signStatus);
-                            System.out.println("Cập nhật vào: " + o.getUpdateTime());
-                            System.out.println("Trạng thái: " + o.getStatus());
-                            System.out.println("Thao tác: " + o.getNextStatusString());
+//                            System.out.println("ID: " + o.getOrderID());
+//                            System.out.println("Tạo lúc: " + o.getDateSet());
+//                            System.out.println("Danh sách sản phẩm: " + o.getIdProductList());
+//                            System.out.println("Tổng tiền: " + o.getTotalMoney());
+//                            System.out.println("Chữ ký: " + signStatus);
+//                            System.out.println("Cập nhật vào: " + o.getUpdateTime());
+//                            System.out.println("Trạng thái: " + o.getStatus());
+//                            System.out.println("Thao tác: " + o.getNextStatusString());
                     %>
                     <tr class="group">
                         <th scope="row" class="grid-col-0_5 text-center id" style="height: fit-content;">
@@ -153,7 +153,7 @@
                             <span class="time"><%= o.getDateSet() %></span>
                         </td>
                         <td class="grid-col-3_5">
-                            <%= o.getIdProductList() %>
+                            <%= o.getProductList() %>
                         </td>
                         <td class="grid-col-1_5"><%= o.getTotalMoney() %>
                         </td>
@@ -226,15 +226,16 @@
                         }
 
                         function updateStatus(id, status) {
-                            var page = document.querySelector(".page-link.active").getAttribute("data-value");
-                            var byStatus = document.querySelector('select[name="byStatus"]').value;
+                            var activePage = document.querySelector(".page-link.active");
+                            var page = activePage ? activePage.getAttribute("data-value") : 1; // Mặc định là trang 1 nếu không tìm thấy
+                            var byStatus = document.querySelector('select[name="byStatus"]')?.value || -1; // Mặc định là -1 nếu không tìm thấy
+
                             console.log("update: " + id + " status: " + status + " byStatus: " + byStatus + " page: " + page);
 
                             $.ajax({
                                 type: "POST",
                                 url: "adminorder?action=update",
-                                data: {id: id, status: status, page: page, byStatus: byStatus},
-
+                                data: { id: id, status: status, page: page, byStatus: byStatus },
                                 success: function (data) {
                                     $('#order-list-container').html(data);
                                 },
