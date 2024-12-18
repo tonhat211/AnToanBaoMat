@@ -1,5 +1,7 @@
 package model;
 
+import DAO.OrderDAO;
+
 import java.security.*;
 import java.security.spec.X509EncodedKeySpec;
 import java.time.LocalDateTime;
@@ -105,15 +107,6 @@ public class OrderUnit {
         for (OrderDetail detail : details) {
             ProductUnit p = detail.getProductUnit();
             re.append("ID: " + p.productDetailId + " - " + p.getFullName() + " (" + p.color + "-" + p.ram + "-" + p.rom + ") Số lượng: " + detail.getQuantity() + "</br>");
-        }
-        return re.toString();
-    }
-
-    public String getIdProductList() {
-        StringBuilder re = new StringBuilder();
-        for (OrderDetail detail : details) {
-            ProductUnit p = detail.getProductUnit();
-            re.append("ID: " + p.productDetailId + " - " + " Số lượng: " + detail.getQuantity() + "</br>");
         }
         return re.toString();
     }
