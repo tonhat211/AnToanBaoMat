@@ -1,6 +1,8 @@
 package controller;
 
 import DAO.OrderDAO;
+import JavaMail.EmailService;
+
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -97,40 +99,69 @@ public class AdminOrderController extends HttpServlet {
             }
             case "UPDATE": {
                 System.out.println("admin order : update status");
-                int byStatus = Integer.parseInt(req.getParameter("byStatus")!=null?req.getParameter("byStatus"):"-1");
+                int byStatus = Integer.parseInt(req.getParameter("byStatus") != null ? req.getParameter("byStatus") : "-1");
                 int status = Integer.parseInt(req.getParameter("status"));
                 int id = Integer.parseInt(req.getParameter("id"));
-                // Kiem tra new status hop le khong
+                String userEmail = OrderDAO.getUserEmailByOrderID(id); // Lấy email người dùng từ order ID
+
+                // Kiểm tra trạng thái chữ ký
+                int signStatus = OrderDAO.checkSign(id); // Lấy trạng thái chữ ký từ DB
+
+                // Kiểm tra trạng thái mới
                 int currentStatus = OrderDAO.getInstance().selectStatus(id);
-                if((status <= currentStatus) || status<0) { // khong hop le
+                if ((status <= currentStatus) || status < 0) { // Không hợp lệ
                     resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                     resp.setContentType("text/html");
-                    resp.setCharacterEncoding("UTF-8");// Gửi mã lỗi 500
+                    resp.setCharacterEncoding("UTF-8");
                     String html = "<script>\n" +
-                            "      showErrorToast2(\"Cập nhật trạng thái cho " +id+ " thất bại. Đơn hàng ĐÃ +" + Constant.getStatusString(currentStatus)+" trước đó.\");\n" +
+                            "      showErrorToast2(\"Cập nhật trạng thái cho " + id + " thất bại. Đơn hàng đã " + Constant.getStatusString(currentStatus) + " trước đó.\");\n" +
                             "    </script>";
                     resp.getWriter().write(html);
-                } else { //hop le
+                } else { // Hợp lệ
                     int page = Integer.parseInt(req.getParameter("page"));
                     int offset = (page - 1) * Constant.NUM_OF_ITEMS_A_PAGE;
                     int re = OrderDAO.getInstance().updateStatus(id, status);
                     if (re == 1) {
-                        ArrayList<OrderUnit> orderunits = OrderDAO.getInstance().selectOrderUnitByStatus(byStatus, offset, Constant.NUM_OF_ITEMS_A_PAGE);
-                        String html = renderOrderList(orderunits);
+                        // Gửi email thông báo
+                        EmailService emailService = new EmailService();
+                        String subject = "";
+                        String content = "";
+
+                        if (status == Constant.CONFIRM) { // Xác nhận đơn hàng
+                            subject = "Xác nhận đơn hàng";
+                            content = "Đơn hàng #" + id + " của bạn đã được xác nhận. Cảm ơn bạn đã sử dụng dịch vụ!";
+                        } else if (status == Constant.CANCEL) { // Hủy đơn hàng
+                            subject = "Hủy đơn hàng";
+                            if (signStatus == 0) { // Chưa ký
+                                content = "Đơn hàng #" + id + " đã bị hủy do chữ ký chưa được cung cấp.";
+                            } else if (signStatus == -1) { // Chữ ký sai
+                                content = "Đơn hàng #" + id + " đã bị hủy do chữ ký không hợp lệ.";
+                            } else { // Chữ ký hợp lệ
+                                content = "Đơn hàng #" + id + " đã bị hủy theo yêu cầu.";
+                            }
+                        }
+
+                        if (!subject.isEmpty() && !content.isEmpty()) {
+                            emailService.send(userEmail, subject, content);
+                        }
+
+                        // Cập nhật giao diện
+                        ArrayList<OrderUnit> orderUnits = OrderDAO.getInstance().selectOrderUnitByStatus(byStatus, offset, Constant.NUM_OF_ITEMS_A_PAGE);
+                        String html = renderOrderList(orderUnits);
                         html += "<script>\n" +
                                 "      showSuccessToast2(\"Cập nhật trạng thái cho " + id + " thành công!\");\n" +
                                 "    </script>";
                         resp.getWriter().write(html);
                     } else {
                         String html = "<script>\n" +
-                                "      showErrorToast2(\"Cập nhật trạng thái cho " +id+ " thất bại. Lỗi: "+ Constant.UNDEFINED+"\");\n" +
+                                "      showErrorToast2(\"Cập nhật trạng thái cho " + id + " thất bại. Lỗi: " + Constant.UNDEFINED + "\");\n" +
                                 "    </script>";
                         resp.getWriter().write(html);
                     }
                 }
-
                 break;
             }
+
         }
 
     }
