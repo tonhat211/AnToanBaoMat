@@ -20,6 +20,34 @@ public class OrderDAO implements IDAO<Order> {
         return new OrderDAO();
     }
 
+    public static String getUserEmailByOrderID(int orderId) {
+        String email = null;
+        try {
+            Connection conn = JDBCUtil.getConnection();
+
+            // Truy vấn thông tin email từ bảng `users` thông qua bảng `orders`
+            String sql = "SELECT u.email " +
+                    "FROM orders o " +
+                    "INNER JOIN users u ON o.userID = u.id " +
+                    "WHERE o.id = ?";
+            PreparedStatement pst = conn.prepareStatement(sql);
+            pst.setInt(1, orderId);
+
+            ResultSet rs = pst.executeQuery();
+            if (rs.next()) {
+                email = rs.getString("email"); // Lấy email từ kết quả truy vấn
+            }
+
+            rs.close();
+            pst.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return email;
+    }
+
+
+
     public static int checkSign(int orderId) {
         int signStatus = 0; // Mặc định là chưa ký (0)
         try {
