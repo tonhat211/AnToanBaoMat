@@ -66,7 +66,7 @@
                     for(OrderUnit o : orderUnits) {
                 %>
                     <div class="flex-roww group">
-                        <div class="grid-col-8">
+                        <div class="grid-col-8" id="order-list-container">
                             <div class="order-item sub-content">
                                 <div class="flex-roww" style="justify-content: space-between;">
                                     <p>Mã đơn hàng: <span class="orderID"><%=o.getOrderID()%></span> </p>
@@ -236,8 +236,13 @@
             type: "POST",
             data: {id:id,signature:signature},
             success: function(response) {
-                group.style.display = 'none';
+                // group.style.display = 'none';
+                group.remove();
                 showSuccessToast('Cập nhật thành công!');
+                const orderItems = document.querySelectorAll(".order-item");
+                if(orderItems.length===0) {
+                    window.location.href = "order";
+                }
             },
             error: function (xhr, status, error) {
                 console.error("Có lỗi xảy ra: ", error);

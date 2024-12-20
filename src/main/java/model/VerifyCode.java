@@ -1,17 +1,21 @@
 package model;
 
+import DAO.VerifyCodeDAO;
+
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 
 public class VerifyCode {
-	private String code;
+    private String code;
     private String email;
-    private Timestamp time;
+    private LocalDateTime time;
     private int isVerify;
 
     public VerifyCode() {
     }
 
-    public VerifyCode(String code, String email, Timestamp time, int isVerify) {
+    public VerifyCode(String code, String email, LocalDateTime time, int isVerify) {
         this.code = code;
         this.email = email;
         this.time = time;
@@ -49,11 +53,11 @@ public class VerifyCode {
         this.code = code;
     }
 
-    public Timestamp getTime() {
+    public LocalDateTime getTime() {
         return time;
     }
 
-    public void setTime(Timestamp time) {
+    public void setTime(LocalDateTime time) {
         this.time = time;
     }
 
@@ -72,6 +76,17 @@ public class VerifyCode {
                 ", time=" + time +
                 ", isVerify=" + isVerify +
                 '}';
+    }
+
+    public boolean isWithinFiveMinutes() {
+        long minutes = ChronoUnit.MINUTES.between(this.time, LocalDateTime.now());
+        return minutes <= 5;
+    }
+
+    public static void main(String[] args) {
+        VerifyCode verifyCode = new VerifyCode("55425","21130463@st.hcmuaf.edu.vn");
+//        verifyCode = VerifyCodeDAO.getInstance().selectTheLast(verifyCode.getEmail());
+//        System.out.println(verifyCode.verify());
     }
 
 

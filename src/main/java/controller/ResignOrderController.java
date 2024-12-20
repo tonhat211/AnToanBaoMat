@@ -33,6 +33,14 @@ public class ResignOrderController extends HttpServlet {
         String action  =req.getParameter("action");
         System.out.println("Resign order controller");
         System.out.println("Action: " + action);
+        if(action==null) {
+            ArrayList<OrderUnit> orderUnits =  OrderDAO.getInstance().selectResignOrderUnit(userLogging.getId());
+            req.setAttribute("orderUnits", orderUnits);
+            System.out.println("get order units");
+            RequestDispatcher rd = getServletContext().getRequestDispatcher("/resignOrder.jsp");
+            rd.forward(req, resp);
+            return;
+        }
 
         action = action.toUpperCase();
         switch (action) {

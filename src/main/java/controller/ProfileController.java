@@ -151,9 +151,11 @@ public class ProfileController extends HttpServlet {
             case "ADDPUBLICKEY": {
                 String publicKey = req.getParameter("publicKey");
                 int re = UserDAO.getInstance().updatePublicKey(userLogging.getId(), publicKey);
+                User user = UserDAO.getInstance().selectById(userLogging.getId());
+                session.setAttribute("userLogging",user);
                 if(re==1) {
                     String html = renderToast("Thêm public key thành công");
-                    html+= renderScript("removeModal('#modal-container');");
+                    html+= renderScript("removeModal('#modal-container'); location.reload();");
                     resp.setContentType("text/html");
                     resp.setCharacterEncoding("UTF-8");
                     resp.getWriter().write(html);

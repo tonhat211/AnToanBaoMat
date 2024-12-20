@@ -95,9 +95,11 @@ function toast2({title = '', message = '', type = 'info', duration = 3000}) {
 }
 
 
-function showSuccessToast2(messagein) {
+function showSuccessToast2(messagein,sound="sound") {
     console.log("toast-2");
-    playSound('assets/sound/successful.mp3');
+    if(sound=="sound") {
+        playSound('assets/sound/successful.mp3');
+    }
     toast2({
         title: 'Successful',
         message: messagein,
@@ -111,8 +113,10 @@ function playSound(url) {
     audio.play();
 }
 
-function showErrorToast2(messagein) {
-    playSound('assets/sound/error.mp3');
+function showErrorToast2(messagein,sound="sound") {
+    if(sound=="sound") {
+        playSound('assets/sound/error.mp3');
+    }
     toast2({
         title: 'error',
         message: messagein,

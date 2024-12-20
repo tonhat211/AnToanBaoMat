@@ -54,7 +54,7 @@ public class SignupController extends HttpServlet {
 
                             // khoi tao otp va insert vao database
                             VerifyCode verifyCode = new VerifyCode(email);
-                            int code = VerifyCodeDAO.getInstance().insertNewCode(verifyCode);
+                            int code = VerifyCodeDAO.getInstance().insert(verifyCode);
 
                             // hien tai dang bi loi phan gui mail
 

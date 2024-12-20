@@ -5,6 +5,7 @@ import model.VerifyCode;
 import service.JDBCUtil;
 
 import java.sql.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -16,19 +17,14 @@ public class VerifyCodeDAO implements IDAO<VerifyCode> {
     @Override
     public int insert(VerifyCode verifyCode) {
         int re=0;
-        Random rand = new Random();
-        String code ="";
-        for(int i=0;i<6; i++) {
-            code+= String.valueOf(rand.nextInt(9)+1);
-        }
-        verifyCode.setCode(code);
         try {
             Connection conn = JDBCUtil.getConnection();
-            String sql = "insert into verifycode (code,email,isVerify) values (?,?,?);";
+            String sql = "insert into verifycodes (code,email) values (?,?);";
             PreparedStatement pst = conn.prepareStatement(sql);
             pst.setString(1, verifyCode.getCode());
             pst.setString(2, verifyCode.getEmail());
-            pst.setInt(3, verifyCode.getIsVerify());
+            System.out.println(pst);
+//            pst.setInt(3, Constant.ACTIVE);
             re = pst.executeUpdate();
 
             JDBCUtil.closeConnection(conn);
@@ -38,24 +34,6 @@ public class VerifyCodeDAO implements IDAO<VerifyCode> {
         }
     }
 
-    public int insertNewCode(VerifyCode verifyCode) {
-        int re=0;
-
-        try {
-            Connection conn = JDBCUtil.getConnection();
-            String sql = "insert into verifycode (code,email,isVerify) values (?,?,?);";
-            PreparedStatement pst = conn.prepareStatement(sql);
-            pst.setString(1, verifyCode.getCode());
-            pst.setString(2, verifyCode.getEmail());
-            pst.setInt(3, verifyCode.getIsVerify());
-            re = pst.executeUpdate();
-            JDBCUtil.closeConnection(conn);
-            return re;
-
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
     @Override
     public int update(VerifyCode verifyCode) {
         return 0;
@@ -76,18 +54,18 @@ public class VerifyCodeDAO implements IDAO<VerifyCode> {
         return null;
     }
 
-    public VerifyCode selectTheLastCodeOf(String emailin) {
+    public VerifyCode selectTheLast(String emailin) {
         VerifyCode re = null;
         try {
             Connection conn = JDBCUtil.getConnection();
-            String sql = "select * from verifycode where email = ? ORDER by id desc LIMIT 1;";
+            String sql = "select * from verifycodes where email = ? ORDER by id desc LIMIT 1;";
             PreparedStatement pst = conn.prepareStatement(sql);
             pst.setString(1, emailin);
             ResultSet rs = pst.executeQuery();
             while (rs.next()) {
                 String code = rs.getString("code");
                 String email = rs.getString("email");
-                Timestamp time = rs.getTimestamp("time");
+                LocalDateTime time = rs.getObject("time", LocalDateTime.class);
                 int isVerify = rs.getInt("isVerify");
                 re = new VerifyCode(code, email, time, isVerify);
             }
@@ -102,10 +80,9 @@ public class VerifyCodeDAO implements IDAO<VerifyCode> {
         int re = 0;
         try {
             Connection conn = JDBCUtil.getConnection();
-            String sql = "update verifycode set isVerify = ? where code = ?;";
+            String sql = "update verifycodes set isVerify = "+Constant.UNACTIVE+ " where code = ?;";
             PreparedStatement pst = conn.prepareStatement(sql);
-            pst.setInt(1, Constant.USED_CODE);
-            pst.setString(2, code);
+            pst.setString(1, code);
             re = pst.executeUpdate();
             return re;
 
@@ -115,27 +92,9 @@ public class VerifyCodeDAO implements IDAO<VerifyCode> {
         }
     }
 
-    public int verifyCode(String codein, String emailin) {
-        boolean res = false;
-        VerifyCode code = VerifyCodeDAO.getInstance().selectTheLastCodeOf(emailin);
-        if(code.getIsVerify()==1) return 0;
-        if(code.getCode().equals(codein)) {
-            long codeTime = code.getTime().getTime();
-            long currentTimestamp = System.currentTimeMillis();
-            long timeDifferenceMillis = currentTimestamp - codeTime;
-            long seconds = timeDifferenceMillis / 1000;
-            if (seconds > 0 && seconds < 300) {
-                VerifyCodeDAO.getInstance().disableCode(codein);
-                return 1;
-            }
 
-        }
-        return 0;
-
-    }
 
     public static void main(String[] args) {
-        int re = VerifyCodeDAO.getInstance().verifyCode("11111","2003tonhat@gmail.com");
-        System.out.println(re);
+
     }
 }

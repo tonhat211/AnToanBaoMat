@@ -220,6 +220,8 @@ public class User {
     }
 
     public String getPublicKey() {
+        if(this.publicKey==null) return null;
+        if(this.publicKey.equals("")) return null;
         return this.publicKey;
     }
 

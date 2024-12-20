@@ -40,38 +40,35 @@
 
 </head>
 <body>
-<%
-    String time= (String) request.getAttribute("time");
 
-%>
-<%--<%--%>
-<%--    if(message!=null) {--%>
-<%--%>--%>
-<%--        <script>--%>
-<%--            alert("<%=message%>");--%>
-<%--        </script>--%>
-<%--<%--%>
-<%--    }--%>
-<%--%>--%>
 <%@ include file="header.jsp" %>
-<div class="content-container">
-    <form action="reportKey" method="POST" id="add-public-key-form">
-        <input type="text" name="action" value="updatePublicKey" hidden>
-        <input type="text" name="time" value="<%=time%>" hidden>
-        <div class="flex-coll" style="justify-content: center;margin:22px 0;font-size: 19px">
-            <p>Cập nhật public key</p>
-            <div class="form-group grid-col-6" style="margin-top: 10px;">
-                <div class="flex-roww" >
-                    <input type="file" multiple data-max_length="20" accept=".txt" onchange="previewPublicKey(event);" style="margin: 5px 0;">
+<div class="content-container" style="display: flex;justify-content: center;">
+    <div class="sub-content" style="width: 50%;">
+        <form action="updatePublicKey" method="POST" id="update-public-key-form">
+            <input type="text" name="action" value="update" hidden onchange="previewPublicKey(event)">
+            <div class="flex-coll" style="justify-content: center;margin:22px 0;font-size: 19px">
+                <h3>Cập nhật public key</h3>
+                <p class="note">Nếu bạn chưa có key mới, bạn có thể bỏ trống key
+                    </br> Khi có key mới
+                    </br> Hãy thực hiện lại báo cáo lộ key với ĐÚNG thời gian bạn đã nhập.
+                </p>
+                <div class="form-group grid-col-6" style="margin-top: 10px;">
+                    <label>Thời gian lộ key</label>
+                    <input type="datetime-local" name="time" required>
                 </div>
-                <textarea contenteditable="true" id="add-public-key" type="text" class="form-control" name="public-key" placeholder="Nhập public key" required=""></textarea>
+                <div class="form-group grid-col-6" style="margin-top: 10px;">
+                    <div class="flex-roww" >
+                        <input type="file" multiple data-max_length="20" accept=".txt" onchange="previewPublicKey(event);" style="margin: 5px 0;">
+                    </div>
+                    <textarea contenteditable="true" id="update-public-key" type="text" class="form-control" name="public-key" placeholder="Nhập public key"></textarea>
+                </div>
             </div>
-        </div>
-        <div class="flex-roww" style="justify-content: space-around; margin-top: 20px">
-            <button class="btn btn-outline-primary btn-cancel-filter" onclick="removeModal('#modal-container');"><i class="bi bi-x-lg"></i> Hủy</button>
-            <button class="btn btn-primary" type="submit">Thêm</button>
-        </div>
-    </form>
+            <div class="flex-roww" style="justify-content: space-around; margin-top: 20px">
+                <button class="btn btn-outline-primary btn-cancel-filter" onclick="removeModal('#modal-container');"><i class="bi bi-x-lg"></i> Hủy</button>
+                <button class="btn btn-primary" type="submit">Cập nhật</button>
+            </div>
+        </form>
+    </div>
     <script>
         function previewPublicKey(event) {
             const file = event.target.files[0];
@@ -79,7 +76,7 @@
                 const reader = new FileReader(); // Tạo đối tượng FileReader
                 reader.onload = function(e) {
                     const content = e.target.result; // Lấy nội dung file
-                    document.querySelector('#add-public-key').value = content; // Hiển thị nội dung file
+                    document.querySelector('#update-public-key').value = content; // Hiển thị nội dung file
                 };
                 reader.readAsText(file); // Đọc file dưới dạng văn bản
             } else {

@@ -43,10 +43,12 @@
 <%
     ArrayList<Brand> brands = (ArrayList<Brand>) request.getAttribute("brands");
     ArrayList<ProductUnit> productUnits = (ArrayList<ProductUnit>) request.getAttribute("productUnits");
-
+    String script = (String) request.getAttribute("script");
+    if(script==null) script="";
 %>
 <body>
 <%@ include file="header.jsp" %>
+<div id="toast-2"></div>
 <div class="content-container">
     <div class="breadcrumb flex-roww" style="background-color: var(--base-bg-color);padding: 0;">
         <a href="#">Trang chủ </a><p style=";margin-bottom: 0;"> / <span class="total-phone" style="margin-bottom: 0">1000</span> điện thoại</p>
@@ -325,6 +327,7 @@
 
     </script>
 </div>
+<%=script%>
 
 <%@ include file="footer.jsp" %>
 </body>

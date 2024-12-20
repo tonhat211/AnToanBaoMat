@@ -289,5 +289,19 @@ input[type="number"] {
     -moz-appearance: textfield;
 }
 
+.form-error {
+    color: red;
+    width: fit-content;
+    border-radius: 4px;
+    margin: 4px 0;
+    font-size: 14px;
+    background-color: rgba(255, 0, 0, 0.22);
+}
+
+.note {
+    color: #0b5ed7;
+    font-style: italic;
+    font-size: 14px;
+}
 
 

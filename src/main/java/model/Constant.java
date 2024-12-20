@@ -27,6 +27,11 @@ public class Constant {
     public static final int LOCK = -1;
     public static final int DELETE = -99;
 
+    //avai
+    public static final int UNACTIVE = 0;
+    public static final int BLOCKED = -1;
+    public static final int DELETED = -99;
+
     public static final int ALL = 0;
     public static final int SMARTPHONE_CATEGORY = 1;
     public static final int TABLET_CATEGORY = 2;
@@ -82,6 +87,13 @@ public class Constant {
             case CANCEL: return "Hủy";
         }
         return UNDEFINED;
+    }
+
+    public static String callFunction(String method) {
+        String re ="  <script>\n" +
+                method +
+                "     </script>";
+        return re;
     }
 
 
