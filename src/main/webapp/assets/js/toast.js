@@ -121,7 +121,7 @@ function showErrorToast2(messagein,sound="sound") {
         title: 'error',
         message: messagein,
         type: 'error',
-        duration: 500
+        duration: 1000
     })
 }
 

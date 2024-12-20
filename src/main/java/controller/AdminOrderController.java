@@ -149,8 +149,8 @@ public class AdminOrderController extends HttpServlet {
                         ArrayList<OrderUnit> orderUnits = OrderDAO.getInstance().selectOrderUnitByStatus(byStatus, offset, Constant.NUM_OF_ITEMS_A_PAGE);
                         String html = renderOrderList(orderUnits);
                         html += "<script>\n" +
-                                "      showSuccessToast2(\"Cập nhật trạng thái cho " + id + " thành công!\");\n" +
-                                "    </script>";
+                                "      showSuccessToast2(\"Cập nhật trạng thái cho " + id + " thành công!\",'none');\n" +
+                                "</script>";
                         resp.getWriter().write(html);
                     } else {
                         String html = "<script>\n" +

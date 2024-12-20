@@ -99,6 +99,13 @@ public class OrderController extends HttpServlet {
 
                 PartialOrder partialOrder = new PartialOrder(orderUnit.getOrderID(),orderUnit.order.getMoney(),orderUnit.getFullReveiver(),orderUnit.order.getDateSet(),products);
                 String orderJson = gson.toJson(partialOrder);
+                HashAlgorism hashAlgorism = new HashAlgorism();
+                try {
+                    orderJson= hashAlgorism.hash(orderJson);
+                } catch (Exception e) {
+                    System.out.println("hash error");
+                }
+
                 resp.setContentType("text/plain");
                 resp.setCharacterEncoding("UTF-8");
                 resp.getWriter().write(orderJson);
