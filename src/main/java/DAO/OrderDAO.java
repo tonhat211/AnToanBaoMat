@@ -46,8 +46,6 @@ public class OrderDAO implements IDAO<Order> {
         return email;
     }
 
-
-
     public static int checkSign(int orderId) {
         int signStatus = 0; // Mặc định là chưa ký (0)
         try {
@@ -86,7 +84,7 @@ public class OrderDAO implements IDAO<Order> {
                 rsDetails.close();
                 pstDetails.close();
 
-                // Tạo đối tượng PartialOrder (chung logic với "DOWNLOAD")
+                // Tạo đối tượng PartialOrder
                 PartialOrder partialOrder = new PartialOrder(id, totalMoney, receiver, dateSet, products);
 
                 // Chuyển đối tượng PartialOrder thành JSON
@@ -95,8 +93,13 @@ public class OrderDAO implements IDAO<Order> {
                         .create();
                 String rawData = gson.toJson(partialOrder);
 
-//                System.out.println("rawData: " + rawData);
-//                System.out.println("signature: " + signature);
+                // Băm dữ liệu trước khi kiểm tra chữ ký
+                HashAlgorism hashAlgorism = new HashAlgorism();
+                try {
+                    rawData = hashAlgorism.hash(rawData);
+                } catch (Exception e) {
+                    System.out.println("Hash error during sign check");
+                }
 
                 if (signature != null && !signature.trim().isEmpty()) {
                     // Truy vấn public key từ bảng `users`
@@ -107,9 +110,8 @@ public class OrderDAO implements IDAO<Order> {
 
                     if (rsUser.next()) {
                         String publicKeyString = rsUser.getString("publicKey");
-//                        System.out.println("publicKeyString: " + publicKeyString);
 
-                        // Xác minh chữ ký
+                        // Xác minh chữ ký với dữ liệu đã băm
                         if (OrderUnit.verifySignature(rawData, signature, publicKeyString)) {
                             signStatus = 1; // Chữ ký hợp lệ
                         } else {
@@ -128,8 +130,6 @@ public class OrderDAO implements IDAO<Order> {
         }
         return signStatus;
     }
-
-
 
     @Override
     public int insert(Order order) {
