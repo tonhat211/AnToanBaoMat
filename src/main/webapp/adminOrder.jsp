@@ -133,17 +133,8 @@
                     <%
                         System.out.println("OrderUnits size: " + orderUnits.size());
                         for (OrderUnit o : orderUnits) {
-                            int orderId = o.getOrderID(); // Lấy orderId từ đối tượng OrderUnit
+                            int orderId = o.getOrderID();
                             int signStatus = OrderDAO.checkSign(orderId); // Kiểm tra chữ ký
-
-//                            System.out.println("ID: " + o.getOrderID());
-//                            System.out.println("Tạo lúc: " + o.getDateSet());
-//                            System.out.println("Danh sách sản phẩm: " + o.getIdProductList());
-//                            System.out.println("Tổng tiền: " + o.getTotalMoney());
-//                            System.out.println("Chữ ký: " + signStatus);
-//                            System.out.println("Cập nhật vào: " + o.getUpdateTime());
-//                            System.out.println("Trạng thái: " + o.getStatus());
-//                            System.out.println("Thao tác: " + o.getNextStatusString());
                     %>
                     <tr class="group">
                         <th scope="row" class="grid-col-0_5 text-center id" style="height: fit-content;">
@@ -155,29 +146,42 @@
                         <td class="grid-col-3_5">
                             <%= o.getProductList() %>
                         </td>
-                        <td class="grid-col-1_5"><%= o.getTotalMoney() %>
-                        </td>
+                        <td class="grid-col-1_5"><%= o.getTotalMoney() %></td>
                         <td>
-                            <% if (signStatus == 1) { %>
-                            <span class="status-box signed">Đã ký</span>
-                            <% } else if (signStatus == -1) { %>
-                            <span class="status-box invalid-sign">Chữ ký sai</span>
-                            <% } else { %>
-                            <span class="status-box unsigned">Chưa ký</span>
-                            <% } %>
-                        </td>
-                        <td class="grid-col-1"><span
-                                class="status-<%= o.getStatus() %>"><%= Constant.getStatusString(o.getStatus()) %></span>
-                        </td>
-                        <td class="grid-col-1 text-center"><span class="updateTime time"><%= o.getUpdateTime() %></span>
+                            <%
+                                String signStatusHTML;
+                                boolean disableActions = false;
+
+                                if (signStatus == 1) {
+                                    signStatusHTML = "<span class='status-box signed'>Đã ký</span>";
+                                } else if (signStatus == -1) {
+                                    signStatusHTML = "<span class='status-box invalid-sign'>Chữ ký sai</span>";
+                                    disableActions = true;
+                                } else {
+                                    signStatusHTML = "<span class='status-box unsigned'>Chưa ký</span>";
+                                    disableActions = true;
+                                }
+                            %>
+                            <%= signStatusHTML %>
                         </td>
                         <td class="grid-col-1">
+                            <span class="status-<%= o.getStatus() %>"><%= Constant.getStatusString(o.getStatus()) %></span>
+                        </td>
+                        <td class="grid-col-1 text-center">
+                            <span class="updateTime time"><%= o.getUpdateTime() %></span>
+                        </td>
+                        <td class="grid-col-1">
+                            <% if (disableActions) { %>
+                            <button class="btn btn-status-10" type="button"
+                                    onclick="updateStatus('<%= o.getOrderID() %>', '<%= o.getCancelStatus() %>')">
+                                Hủy đơn
+                            </button>
+                            <% } else { %>
                             <button class="btn btn-status-<%= o.getNextStatus() %>" type="button"
-                                    onclick="updateStatus('<%= o.getOrderID() %>','<%= o.getNextStatus() %>')">
+                                    onclick="updateStatus('<%= o.getOrderID() %>', '<%= o.getNextStatus() %>')">
                                 <%= o.getNextStatusString() %>
                             </button>
-                            <select name="action" onchange="handleChange(event);" data-default="none"
-                                    style="margin-bottom: 15px;">
+                            <select name="action" onchange="handleChange(event);" data-default="none" style="margin-bottom: 15px;">
                                 <option value="none">...</option>
                                 <option value="<%= Constant.CONFIRM %>">Xác nhận</option>
                                 <option value="<%= Constant.DELIVERY %>">Bàn giao</option>
@@ -185,18 +189,16 @@
                                 <option value="<%= Constant.CANCEL %>">Hủy</option>
                                 <option value="detail">Chi tiết</option>
                             </select>
+                            <% } %>
                             <div style="position: relative;">
                                 <div class="address-container sub-content">
-                                    <p><%= o.getReceiver() %>
-                                    </p>
-                                    <p><%= o.getAddress() %>
-                                    </p>
+                                    <p><%= o.getReceiver() %></p>
+                                    <p><%= o.getAddress() %></p>
                                 </div>
                             </div>
                         </td>
                     </tr>
                     <% } %>
-
 
                     <script>
                         function showAddress(event) {

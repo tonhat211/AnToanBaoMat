@@ -125,6 +125,11 @@ public class OrderUnit {
         else return next;
     }
 
+    public int getCancelStatus() {
+        return Constant.CANCEL;
+    }
+
+
     public String getStatusString() {
         return Constant.getStatusString(order.getStatus());
     }
@@ -168,5 +173,6 @@ public class OrderUnit {
     public static void main(String[] args) {
 //        LocalDateTime time = LocalDateTime.now();
 //        System.out.println(time.toLocalDate());
+        System.out.println(verifySignature("{\"id\":45,\"totalMoney\":8990000.0,\"receiver\":\"Nghia (0964967743)   |A, a, a, a\",\"dateSet\":\"2024-12-20T16:07:24\",\"products\":[{\"id\":0,\"productDetailID\":124,\"ram\":0,\"rom\":0,\"price\":8990000.0,\"qty\":1}]}", "S3nCniT9nThpEzpvVlFgN5vHbkBBxokbPgOFQAUlEUVeULbDRW9QhSskNImzTSGgT6JBibvR17ypfZomizUBkvRjs4/ofbC/b+uZDH77cIZrI6CKgk9rPSeUeBFCGZcBEt7nuGiSOAwDuM3wWMAw3rdu8BbIlTVlR1RHqTEz5Zss8oX521fTspTUE3VvJ2Pd70B/M9N+Ejjo0x4ahL5wvqpsJj+7133N/Vs5sn8II/qWQa2wns/fe9QOrcIwY81/U0ezP5ov6phQrYnnXSxTdUfxl4ynXJSHjCxFPHHKQ0mL2wySuoob2R8n1VTW+8KQCa2jINhL6wxxfqK5uqmpGg==", "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAphPqXHD4M4q1hs9WvH4bFek4gLygxDNOHMRsYmoWPOl0lEJvRud0hBiF1EnCEOBjo0NJh/C8gw15uWBHsHdnzRjk/8BZjWLvcRfulA26a3ZOZ8unuwOCH22pSci2E6mbm4zY5cqOw/+SAS6tJUAOzyVvO9SHfG09h5DBls3p5LK9LbyKDvFD63bLpV6yTliCCPntjuGFG9wbX+R4t5vZzqiQfOYZMV7K7vJrduKT7iTAphrAFVf7VNH2/8HU+i0wyJ7mIdvuV5gAAYCu1BMD7MXXtiQYG4lEaREDPCQErtu7Nz64bkQfz6W6uG+JQy/t8k3le0BHDSd14E4vYRIvywIDAQAB"));
     }
 }
