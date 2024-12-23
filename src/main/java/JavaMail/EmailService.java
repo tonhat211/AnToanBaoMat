@@ -38,7 +38,7 @@ public class EmailService implements IJavaMail {
             MimeMessage message = new MimeMessage(session);
             ((MimeMessage) message).setRecipients(Message.RecipientType.TO, InternetAddress.parse(to));
             message.setSubject(subject);
-            message.setText(messageContent);
+            message.setText(messageContent, "UTF-8");
 
             // send message
             Transport.send(message);

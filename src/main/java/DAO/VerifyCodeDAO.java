@@ -61,6 +61,7 @@ public class VerifyCodeDAO implements IDAO<VerifyCode> {
             String sql = "select * from verifycodes where email = ? ORDER by id desc LIMIT 1;";
             PreparedStatement pst = conn.prepareStatement(sql);
             pst.setString(1, emailin);
+            System.out.println(pst);
             ResultSet rs = pst.executeQuery();
             while (rs.next()) {
                 String code = rs.getString("code");

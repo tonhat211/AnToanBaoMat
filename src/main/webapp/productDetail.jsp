@@ -204,7 +204,7 @@
                 </div>
             </div>
             <div class="grid-col-4" style="padding-left: 20px;">
-                <div> <span class="id-product-detail">12</span></div>
+<%--                <div> <span class="id-product-detail">12</span></div>--%>
                 <div class="sub-content">
                     <div class="grid__row option-selector group">
                         <%

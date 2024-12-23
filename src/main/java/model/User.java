@@ -18,7 +18,8 @@ public class User {
     public String info;
     public Image image;
     public int avai;
-    public String publicKey;
+    public PublicKey publicKey;
+
 
     public User() {
     }
@@ -59,7 +60,17 @@ public class User {
         this.info = info;
     }
 
-    public User(int id,String name, String email, String[] roles, String info,String publicKey) {
+    //login
+    public User(int id,String name, String email, String[] roles, String info) {
+        this.id = id;
+        this.name = name;
+        this.email = email;
+        this.roles = roles;
+        this.info = info;
+    }
+
+    // profile
+    public User(int id,String name, String email, String[] roles, String info, PublicKey publicKey) {
         this.id = id;
         this.name = name;
         this.email = email;
@@ -221,8 +232,7 @@ public class User {
 
     public String getPublicKey() {
         if(this.publicKey==null) return null;
-        if(this.publicKey.equals("")) return null;
-        return this.publicKey;
+        return this.publicKey.content;
     }
 
     public static void main(String[] args) {

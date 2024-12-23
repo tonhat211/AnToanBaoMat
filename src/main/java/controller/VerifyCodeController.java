@@ -45,7 +45,10 @@ public class VerifyCodeController extends HttpServlet {
                         "\nMã OTP sẽ hết hạn trong vòng 5p");
             } else if(forAction.equalsIgnoreCase("reportKey")) {
                 emailService.send(email,"Lộ private key","Bạn đã báo cáo bị lộ private key\n"
-                        +"\nHãy dùng mã OTP " +otp+ " để có thể thiết lập bộ key mới." +
+                        +"\nHãy dùng mã OTP " +otp+ " để có thể thiết lập public key mới." +
+                        "\nMã OTP sẽ hết hạn trong vòng 5p");
+            } else if(forAction.equalsIgnoreCase("addKey")) {
+                emailService.send(email, "Thêm public key", "\nHãy dùng mã OTP " + otp + " để có thể thiết lập public key." +
                         "\nMã OTP sẽ hết hạn trong vòng 5p");
             }
 
@@ -82,6 +85,9 @@ public class VerifyCodeController extends HttpServlet {
                         resp.getWriter().write(html);
                     } else if(forAction.equalsIgnoreCase("reportKey")) {
                         String html = Constant.callFunction("submitReportKey();");
+                        resp.getWriter().write(html);
+                    } else if(forAction.equalsIgnoreCase("addKey")) {
+                        String html = Constant.callFunction("submitAddKey();");
                         resp.getWriter().write(html);
                     }
 

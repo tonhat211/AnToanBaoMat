@@ -440,10 +440,10 @@
 
             </div>
         </div>
-        <div class="modall add-public-key-modal" onclick="removeModal('#modal-container');">
+        <div class="modall add-public-key-modal-old" onclick="removeModal('#modal-container');">
             <div class="modall-content" style="width: 60%; background-color: unset;" onclick="event.stopPropagation();">
                 <div style="width: 100%; background-color: white;border-radius: 10px;padding: 20px;">
-                    <form action="profile" method="POST" id="add-public-key-form">
+                    <form action="profile" method="POST" id="add-public-key-form-old">
                         <input type="text" name="action" value="addPublicKey" hidden>
                         <div class="flex-coll" style="justify-content: center;margin:22px 0;font-size: 19px">
                             <p>Thêm public key</p>
@@ -451,7 +451,7 @@
                                 <div class="flex-roww" >
                                     <input type="file" multiple data-max_length="20" accept=".txt" onchange="previewPublicKey(event);" style="margin: 5px 0;">
                                 </div>
-                                <textarea contenteditable="true" id="add-public-key" type="text" class="form-control" name="public-key" placeholder="Nhập public key" required=""></textarea>
+                                <textarea contenteditable="true" id="add-public-key-old" type="text" class="form-control" name="public-key" placeholder="Nhập public key" required=""></textarea>
                             </div>
                         </div>
                         <div class="flex-roww" style="justify-content: space-around; margin-top: 20px">
@@ -518,7 +518,30 @@
                         </div>
                         <div class="flex-roww" style="justify-content: space-around; margin-top: 20px">
                             <button class="btn btn-outline-primary btn-cancel-filter" onclick="removeModal('#modal-container');"><i class="bi bi-x-lg"></i> Hủy</button>
-                            <button class="btn btn-primary" type="submit">Báo cáo</button>
+                            <button class="btn btn-primary" type="submit">Nhận OTP</button>
+                        </div>
+                    </form>
+                </div>
+
+
+            </div>
+        </div>
+        <div class="modall add-public-key-modal" onclick="removeModal('#modal-container');">
+            <div class="modall-content" style="width: 60%; background-color: unset;" onclick="event.stopPropagation();">
+                <div style="width: 100%; background-color: white;border-radius: 10px;padding: 20px;">
+                    <form action="verify" method="POST" id="add-public-key-form">
+                        <input type="text" name="fa" value="addKey" hidden>
+                        <div class="flex-coll" style="justify-content: center;margin:22px 0;font-size: 19px">
+                            <h3>Thêm Public Key</h3>
+                            <p class="note">Mã OTP xác thực sẽ được gửi đến email của bạn!</p>
+                            <div class="form-group" style="margin-top: 10px;">
+                                <label>Email</label>
+                                <input style="padding: 4px 6px;margin-left: 10px;" type="text" name="email" placeholder="Nhập email tài khoản của bạn" required>
+                            </div>
+                        </div>
+                        <div class="flex-roww" style="justify-content: space-around; margin-top: 20px">
+                            <button class="btn btn-outline-primary btn-cancel-filter" onclick="removeModal('#modal-container');"><i class="bi bi-x-lg"></i> Hủy</button>
+                            <button class="btn btn-primary" type="submit">Nhận OTP</button>
                         </div>
                     </form>
                 </div>

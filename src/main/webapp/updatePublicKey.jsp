@@ -40,12 +40,18 @@
 
 </head>
 <body>
-
+    <%
+        String forAction = (String) request.getAttribute("fa");
+        if(request.getAttribute("fa")==null) forAction=null;
+    %>
 <%@ include file="header.jsp" %>
 <div class="content-container" style="display: flex;justify-content: center;">
     <div class="sub-content" style="width: 50%;">
+        <%
+            if(forAction.equalsIgnoreCase("update")) {
+        %>
         <form action="updatePublicKey" method="POST" id="update-public-key-form">
-            <input type="text" name="action" value="update" hidden onchange="previewPublicKey(event)">
+            <input type="text" name="a" value="update" hidden>
             <div class="flex-coll" style="justify-content: center;margin:22px 0;font-size: 19px">
                 <h3>Cập nhật public key</h3>
                 <p class="note">Nếu bạn chưa có key mới, bạn có thể bỏ trống key
@@ -60,7 +66,7 @@
                     <div class="flex-roww" >
                         <input type="file" multiple data-max_length="20" accept=".txt" onchange="previewPublicKey(event);" style="margin: 5px 0;">
                     </div>
-                    <textarea contenteditable="true" id="update-public-key" type="text" class="form-control" name="public-key" placeholder="Nhập public key"></textarea>
+                    <textarea contenteditable="true" id="update-public-key" type="text" class="form-control" name="public-key" placeholder="Nhập public key"  required=""></textarea>
                 </div>
             </div>
             <div class="flex-roww" style="justify-content: space-around; margin-top: 20px">
@@ -68,23 +74,63 @@
                 <button class="btn btn-primary" type="submit">Cập nhật</button>
             </div>
         </form>
-    </div>
-    <script>
-        function previewPublicKey(event) {
-            const file = event.target.files[0];
-            if (file && file.type === "text/plain") { // Kiểm tra định dạng file
-                const reader = new FileReader(); // Tạo đối tượng FileReader
-                reader.onload = function(e) {
-                    const content = e.target.result; // Lấy nội dung file
-                    document.querySelector('#update-public-key').value = content; // Hiển thị nội dung file
-                };
-                reader.readAsText(file); // Đọc file dưới dạng văn bản
-            } else {
-                alert("Please upload a valid .txt file."); // Thông báo khi file không hợp lệ
+        <script>
+            function previewPublicKey(event) {
+                const file = event.target.files[0];
+                if (file && file.type === "text/plain") { // Kiểm tra định dạng file
+                    const reader = new FileReader(); // Tạo đối tượng FileReader
+                    reader.onload = function(e) {
+                        const content = e.target.result; // Lấy nội dung file
+                        document.querySelector('#update-public-key').value = content; // Hiển thị nội dung file
+                    };
+                    reader.readAsText(file); // Đọc file dưới dạng văn bản
+                } else {
+                    alert("Please upload a valid .txt file."); // Thông báo khi file không hợp lệ
+                }
             }
-        }
+        </script>
+        <%
+            } else if (forAction.equalsIgnoreCase("add")) {
+        %>
+        <form action="updatePublicKey" method="POST" id="update-public-key-form">
+            <input type="text" name="a" value="add" hidden>
+            <div class="flex-coll" style="justify-content: center;margin:22px 0;font-size: 19px">
+                <h3>Thêm public key</h3>
+                <p class="note">Hãy thêm public key để có thể đặt hàng.
+                </p>
+                <div class="form-group grid-col-6" style="margin-top: 10px;">
+                    <div class="flex-roww" >
+                        <input type="file" multiple data-max_length="20" accept=".txt" onchange="previewAddPublicKey(event);" style="margin: 5px 0;">
+                    </div>
+                    <textarea contenteditable="true" id="add-public-key" type="text" class="form-control" name="public-key" placeholder="Nhập public key" required=""></textarea>
+                </div>
+            </div>
+            <div class="flex-roww" style="justify-content: space-around; margin-top: 20px">
+                <button class="btn btn-outline-primary btn-cancel-filter" onclick="removeModal('#modal-container');"><i class="bi bi-x-lg"></i> Hủy</button>
+                <button class="btn btn-primary" type="submit">Cập nhật</button>
+            </div>
+        </form>
+        <script>
+            function previewAddPublicKey(event) {
+                const file = event.target.files[0];
+                if (file && file.type === "text/plain") { // Kiểm tra định dạng file
+                    const reader = new FileReader(); // Tạo đối tượng FileReader
+                    reader.onload = function(e) {
+                        const content = e.target.result; // Lấy nội dung file
+                        document.querySelector('#add-public-key').value = content; // Hiển thị nội dung file
+                    };
+                    reader.readAsText(file); // Đọc file dưới dạng văn bản
+                } else {
+                    alert("Please upload a valid .txt file."); // Thông báo khi file không hợp lệ
+                }
+            }
 
-    </script>
+        </script>
+        <%
+            }
+        %>
+    </div>
+
 </div>
 
 <%@ include file="footer.jsp" %>

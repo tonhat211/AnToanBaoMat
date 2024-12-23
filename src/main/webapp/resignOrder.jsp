@@ -57,6 +57,7 @@
 <%@ include file="header.jsp" %>
 <div class="content-container">
     <div id="toast"></div>
+    <div id="toast-2"></div>
     <h3 style="text-align: center">Đơn hàng cần kiểm tra</h3>
     <p style="text-align: center">Đây là danh sách những đơn hàng đã phát sinh từ thời điểm bạn bị lộ Key</p>
     <div class="flex-roww" style="align-items: start;">
@@ -238,9 +239,10 @@
             success: function(response) {
                 // group.style.display = 'none';
                 group.remove();
-                showSuccessToast('Cập nhật thành công!');
+                showSuccessToast2('Ký thành công!','none');
                 const orderItems = document.querySelectorAll(".order-item");
                 if(orderItems.length===0) {
+                    console.log("het order");
                     window.location.href = "order";
                 }
             },
@@ -260,7 +262,13 @@
             type: "POST",
             data: {},
             success: function(response) {
-                group.style.display = 'none';
+                group.remove();
+                showSuccessToast2('Hủy thành công!','none');
+                const orderItems = document.querySelectorAll(".order-item");
+                if(orderItems.length===0) {
+                    console.log("het order");
+                    window.location.href = "order";
+                }
             },
             error: function (xhr, status, error) {
                 console.error("Có lỗi xảy ra: ", error);

@@ -172,8 +172,17 @@
                     <form action="updatePublicKey" id="updatePublicKeyForm" method="post">
                         <h3 style="text-align: center;padding-right: 10px;">Xác thực thành công, cập nhật Public Key mới</h3>
                         <input type="text" name="otp">
+                        <input type="text" name="fa" value="update" hidden>
                         <div class="flex-roww" style="justify-content: center;">
                             <button class="btn btn-primary" id="btn-update-key" type="submit" style="margin-top: 30px;">Cập nhật</button>
+                        </div>
+                    </form>
+                    <form action="updatePublicKey" id="addPublicKeyForm" method="post">
+                        <h3 style="text-align: center;padding-right: 10px;">Xác thực thành công, thêm Public Key</h3>
+                        <input type="text" name="otp">
+                        <input type="text" name="fa" value="add" hidden>
+                        <div class="flex-roww" style="justify-content: center;">
+                            <button class="btn btn-primary" id="btn-add-key" type="submit" style="margin-top: 30px;">Thêm</button>
                         </div>
                     </form>
 
@@ -184,6 +193,9 @@
     <script>
         function submitReportKey() {
             document.querySelector('#btn-update-key').click();
+        }
+        function submitAddKey() {
+            document.querySelector('#btn-add-key').click();
         }
         document.querySelector('#updatePublicKeyForm').addEventListener('submit', function(event) {
             event.preventDefault();
@@ -204,6 +216,27 @@
                 console.log('otp khong hop le, khong the submit');
             }
         });
+
+        document.querySelector('#addPublicKeyForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const form = document.querySelector('#otp-form');
+            var o1=form.querySelector('#o1').value;
+            var o2=form.querySelector('#o2').value;
+            var o3=form.querySelector('#o3').value;
+            var o4=form.querySelector('#o4').value;
+            var o5=form.querySelector('#o5').value;
+
+            // var alert_box = form.querySelector('#alert_box');
+            if(o1!="" && o2!="" && o3!="" && o4!="" && o5!="") {
+                var otp = parseInt(o1 + "" + o2 + "" + o3 + "" + o4 + "" + o5);
+                const reportKeyForm = document.querySelector('#addPublicKeyForm');
+                reportKeyForm.querySelector('input[name="otp"]').value =otp;
+                this.submit();
+            } else {
+                console.log('otp khong hop le, khong the submit');
+            }
+        });
+
     </script>
     <div id="verify-code-response">
 

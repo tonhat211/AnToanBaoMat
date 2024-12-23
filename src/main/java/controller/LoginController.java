@@ -44,7 +44,8 @@ public class LoginController extends HttpServlet {
                     } else { // thanh cong
                         System.out.println("login success");
                         String html;
-                        session.setAttribute("userLogging",u);
+                        User userLogging = UserDAO.getInstance().selectById(u.getId());
+                        session.setAttribute("userLogging",userLogging);
                         if(u.getRoles()!= null) { //admin
                             System.out.println("confirm admin");
                             html = callFunction("forward(\"adminmenu?action=init\");");

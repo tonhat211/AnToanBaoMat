@@ -104,7 +104,7 @@ function showSuccessToast2(messagein,sound="sound") {
         title: 'Successful',
         message: messagein,
         type: 'success',
-        duration: 500
+        duration: 1000
     })
 }
 

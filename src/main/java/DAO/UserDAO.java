@@ -3,6 +3,7 @@ package DAO;
 import com.google.gson.Gson;
 import model.Constant;
 import model.Image;
+import model.PublicKey;
 import model.User;
 import service.JDBCUtil;
 
@@ -101,9 +102,12 @@ public class UserDAO implements IDAO<User> {
         User user = null;
         try {
             Connection conn = JDBCUtil.getConnection();
-            String sql = "SELECT * FROM `users` where id = ?";
+            String sql = "select u.id as id, u.name, u.email, u.info, u.roles,pk.id as public_key_id, pk.content " +
+                    "   from users u left join publickeys pk on u.id = pk.user_id and pk.endAt is null " +
+                    "   where u.id = ? and u.id !=" + Constant.DELETED+";";
             PreparedStatement pst = conn.prepareStatement(sql);
             pst.setInt(1, idin);
+            System.out.println(pst);
             ResultSet rs = pst.executeQuery();
             while(rs.next()){
                 int id = rs.getInt("id");
@@ -111,9 +115,14 @@ public class UserDAO implements IDAO<User> {
                 String email = rs.getString("email");
                 String info = rs.getString("info");
                 String rolesJson = rs.getString("roles");
-                String publicKey = rs.getString("publicKey");
+                int publicKeyId = rs.getInt("public_key_id");
+                String content = rs.getString("content");
                 Gson gson = new Gson();
                 String[] roles = gson.fromJson(rolesJson, String[].class);
+                PublicKey publicKey = null;
+                if(publicKeyId!=0 && content!=null) {
+                    publicKey = new PublicKey(publicKeyId,id,content);
+                }
                 user = new User(id,name,email,roles,info,publicKey);
             }
 
@@ -140,15 +149,14 @@ public class UserDAO implements IDAO<User> {
                 String rolesJson = rs.getString("roles");
                 System.out.println("rolesJson: " + rolesJson);
                 String info = rs.getString("info");
-                String publicKey = rs.getString("publicKey");
                 if(rolesJson!=null) {
                     Gson gson = new Gson();
                     String[] roles = gson.fromJson(rolesJson, String[].class);
                     System.out.println("roles1: " + roles[0]);
 
-                    user = new User(id,name,reEmail,roles,info,publicKey);
+                    user = new User(id,name,reEmail,roles,info);
                 } else {
-                    user = new User(id,name,reEmail,null,info,publicKey);
+                    user = new User(id,name,reEmail,null,info);
                 }
 
             }
